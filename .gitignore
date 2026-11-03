@@ -1,0 +1,6 @@
+ios/build/
+ios/Gouffre.xcodeproj/
+ios/Payload/
+*.ipa
+build/
+donnees/

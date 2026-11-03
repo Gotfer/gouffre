@@ -1,0 +1,633 @@
+﻿GOUFFRE — un jeu de billes et de monstres (v10.2)
+================================================
+
+INSTALLATION
+  Le jeu est livré en 9 archives .zip. Extrayez-les TOUTES au même endroit : chacune
+  contient une partie du même dossier « Gouffre » :
+    1/9 : le jeu (Gouffre.exe, ce fichier, les sources, le campement en 4K) ;
+    2/9 à 7/9 : les textures 4K des niveaux, deux niveaux par archive ;
+    8/9 (en deux morceaux, « 8-9a » et « 8-9b ») et 9/9 : les ambiances sonores des niveaux.
+  Une fois tout extrait, le dossier « Gouffre »
+  pèse environ 5,1 Go (5,46 milliards d'octets).
+  Il manque une archive ? Le jeu marche quand même : sans les textures d'un niveau, il
+  reprend ses décors d'avant ; sans les ambiances, il joue seulement la musique.
+
+Lancer : double-cliquez sur Gouffre.exe (Windows 10/11, 64 bits, aucune installation).
+Si Windows affiche « Windows a protégé votre ordinateur » (le fichier n'est pas signé) :
+cliquez sur « Informations complémentaires » puis « Exécuter quand même ».
+Votre progression des versions précédentes est conservée.
+
+BUT
+  Des monstres descendent vers le fond du gouffre. Vos billes partent toutes seules,
+  rebondissent sur les murs et les monstres, puis reviennent au sol.
+  Ne laissez rien atteindre le fond ! Le jeu compte 12 niveaux en trois destinations :
+  le Gouffre (des Catacombes au Cœur du Gouffre), les Profondeurs (des Grottes de Givre
+  au Néant) et le Royaume oublié (du Jardin des Lucioles au Sanctuaire solaire). Chacun
+  se joue à part, avec deux gardiens mineurs et un gardien final. Terminez-les avec tous
+  vos héros... et visez les 100 % du Journal.
+
+NOUVEAU DANS LA VERSION 10.2
+  - Le bouton « Au hasard » tire maintenant deux héros différents à chaque fois : le héros
+    ET son compagnon (avant, seul le héros changeait et le dernier compagnon revenait).
+    L'écran « Emmener un 2e perso ? » permet encore de changer de compagnon ou de partir seul.
+
+NOUVEAU DANS LA VERSION 10.1 : LE DUO RÉÉQUILIBRÉ
+  - À deux héros, le jeu était bien trop facile (deux talents, deux billes de départ, les
+    meilleures stats des deux). Désormais, avec un compagnon, les monstres, les gardiens
+    mineurs et les gardiens ont +50 % de PV et font +25 % de dégâts.
+  - L'écran « Emmener un 2e perso ? » l'indique quand un compagnon est choisi.
+
+NOUVEAU DANS LA VERSION 10.0 : LA MISE À JOUR DU GAMEPLAY
+  (Seul Gouffre.exe change : le dossier « donnees » de la v9 reste le même.)
+
+  BILLES ET OBJETS
+  - 3 nouvelles billes :
+      Boomerang      : traverse les monstres puis fait demi-tour vers vous ; il frappe à
+                       l'aller et plus fort au retour (défi « Retour à l'envoyeur »)
+      Bille sismique : chaque rebond sur un mur lance une onde de choc le long du mur,
+                       qui peut étourdir (défi « Tremblement de terre »)
+      Bille de chaîne : enchaîne le monstre touché à son voisin : une part des dégâts subis
+                       par l'un frappe aussi l'autre (défi « Maillon fort »)
+  - 3 nouvelles évolutions :
+      Boomerang + Épine  = Chakram  (traverse tout, deux demi-tours, fait saigner)
+      Sismique + Plomb   = Faille   (l'onde traverse toute la largeur du puits)
+      Chaîne + Aimant    = Entrave  (trois monstres enchaînés, attirés et ralentis)
+  - Une 5e fusion légendaire : Faille + Volcan = APOCALYPSE (éruption et faille à chaque
+    impact).
+  - 3 nouveaux objets : le Pendule (les monstres descendent moins vite), la Boussole (les
+    billes s'orientent vers les monstres) et le Grimoire (évolutions et fusions plus fortes).
+
+  HÉROS (l'écran titre et ses 8 personnages ne changent pas)
+  - La Chasseresse (bille de départ : Boomerang) : chaque bille rattrapée donne +2 % de
+    dégâts pendant 6 s, jusqu'à +20 % (+30 % au rang 5). Défi « La traque ».
+  - Le Géomancien (bille de départ : sismique) : toutes les 10 s (7 s au rang 5), la terre
+    tremble : tous les monstres subissent des dégâts et sont étourdis. Défi « Fondations ».
+  - Leurs tentes s'installent au campement, de part et d'autre du portail.
+
+  CHAMPIONS À POUVOIRS
+  - 4 nouveaux pouvoirs de champion : Explosif (couronne de tirs en mourant), Invocateur
+    (appelle des renforts), Soigneur (soigne les monstres autour), Spectral (intouchable
+    un instant toutes les 3 s). Le pouvoir de chaque champion est écrit au-dessus de lui.
+
+  MUTATEURS (défi « Apprenti sorcier » : terminer 3 niveaux)
+  - Dans la liste des niveaux, touche M (ou X / Carré) : cochez des règles en plus parmi 12
+    (canon de verre, ruée, fièvre de l'or, carapaces, jonglerie, gardiens enragés,
+    brouillard, champions, et les nouvelles : horde, sans soin, fragile, élite).
+  - Chaque mutateur donne plus d'or et d'expérience pendant le niveau, et un cristal de
+    plus à la victoire. Ils restent cochés d'un niveau à l'autre.
+
+  DÉFIS ET AIDE
+  - 26 nouveaux défis (234 en tout) : nouvelles billes, objets, héros, évolutions et
+    fusion, mutateurs (gagner avec 1, 4, 8 puis 12 mutateurs), chaque pouvoir de champion,
+    monstres vaincus par les secousses et les chaînes...
+  - Le menu Aide a deux rubriques de plus : « Champions » et « Mutateurs ».
+
+NOUVEAU DANS LA VERSION 9.1 : OBJECTIFS EN PAUSE ET MENU AIDE
+  - Le menu pause a un nouvel onglet « Objectifs » : les 3 objectifs du niveau en cours,
+    avec la progression en direct (curiosités brisées, monstres passés, chrono du gardien
+    final...) et les étoiles déjà obtenues.
+  - Nouveau menu « Aide » : sur l'écran titre (bouton Aide), au campement (bouton « ? »
+    en haut à droite, ou F1) et dans la pause (onglet Système). Dix rubriques : le but,
+    les billes, évolutions et fusions, niveaux et gardiens, curiosités et objectifs,
+    campement et héros, modes de jeu, manette, clavier et souris, astuces.
+  - Mise à jour : remplacez seulement Gouffre.exe (le dossier « donnees » ne change pas).
+
+NOUVEAU DANS LA VERSION 9.0 : LA GRANDE MISE À JOUR (4K, AMBIANCES ET GAMEPLAY)
+
+  GRAPHISMES 4K
+  - Toutes les textures ont été recalculées en 4K : 6 texels par pixel du jeu, deux fois
+    plus fines que la v8 (sol, falaises et parois des 12 niveaux, fond du campement).
+    Sur une carte qui n'accepte pas les grandes textures, le jeu prend tout seul la
+    taille au-dessous ; en mode « Performance », il charge directement la version 2K.
+  - Chaque niveau change de visage en cours de route :
+      1re partie : le décor habituel ;
+      2e partie (après le 1er gardien mineur) : le niveau se charge de sa signature
+        (ossements et bougies, champignons, cristaux, coraux, fleurs, rayons de miel...) ;
+      3e partie : le sol se fend (failles qui rougeoient), colonnes effondrées, éboulis,
+        traces de suie ;
+      le gardien final : le sol se change en ARÈNE rituelle (chaussée de dalles polies,
+        canaux de runes lumineuses, sceaux et braseros).
+    Le décor suivant est préparé en tâche de fond pendant que vous jouez.
+  - Le campement suit les saisons (selon la date de votre PC) : neige, congères, pieux
+    enneigés et aurore boréale en hiver ; herbe tendre et fleurs au printemps ; herbe
+    dorée en été ; tapis de feuilles mortes en automne.
+
+  AMBIANCES SONORES (nouveau)
+  - Chaque niveau a deux nappes d'ambiance en stéréo : l'exploration, puis l'arène du
+    gardien. Le campement en a une par saison. Elles se fondent l'une dans l'autre.
+      Catacombes : vent dans les galeries, gouttes, os et chaînes, plaintes lointaines ;
+      Forêt Fongique : gouttes, ruisselet, spores, scarabées, souffle de la Mère-Spore ;
+      Forges : brasier, braises, enclumes, soufflets, lave qui bouillonne ;
+      Cœur du Gouffre : battements de cœur, chuchotements, sons de verre ;
+      Grottes de Givre : vent qui siffle, glace qui craque, clochettes de cristal ;
+      Cité Engloutie : sous l'eau, bulles, cloche noyée, chant du Léviathan ;
+      Ruche d'Ambre : l'essaim, cire qui craque, frelons qui passent ;
+      Néant : presque rien... des souffles à l'envers et des voix ;
+      Jardin des Lucioles : oiseaux de nuit, fontaine, grillons ;
+      Marais maudit : chœur de grenouilles, boue qui bulle, moustiques ;
+      Mines de cristal : pioches, wagonnets, poutres, cristaux qui chantent ;
+      Sanctuaire solaire : chœur, gongs, braseros, sable qui s'écoule ;
+      Campement : le feu de camp, et loups et hiboux (hiver), rossignol (printemps),
+      grillons (été), rafales et feuilles mortes (automne).
+  - Réglage : Options > « Ambiances » (0 pour les couper).
+
+  BILLES, ÉVOLUTIONS, FUSIONS
+  - 4 nouvelles billes :
+      Bille d'ombre    : marque la cible (elle subit plus de dégâts de toutes les sources)
+      Bille de ricochet : chaque rebond sur un mur ajoute des dégâts jusqu'à son retour
+      Bille de lave    : chaque impact laisse une flaque de lave brûlante
+      Bille étoilée    : appelle des étoiles filantes sur d'autres monstres
+  - 6 nouvelles évolutions :
+      Ombre + Lumière   = Éclipse        Ombre + Spectre   = Cauchemar
+      Ricochet + Folle  = Carambole      Lave + Bombe      = Volcan
+      Étoilée + Cristal = Constellation  Étoilée + Lave    = Supernova
+  - FUSIONS LÉGENDAIRES : construisez le Creuset légendaire au campement. Quand vous
+    possédez deux évolutions qui vont ensemble, une carte rare propose de les fondre :
+      Singularité + Supernova = Big Bang         Rayon + Tonnerre  = Jugement dernier
+      Blizzard + Vapeur       = Zéro absolu      Faucheuse + Fléau = Ouroboros
+
+  HÉROS ET CAMPEMENT
+  - 2 nouveaux héros (l'écran titre et ses 8 personnages ne changent pas) :
+      L'Astronome : toutes les 7 s, une étoile filante frappe le monstre le plus
+        résistant ; ses étoiles font 25 % de dégâts en plus (défi « Constellations »).
+      La Voleuse d'ombres : +8 % de coups critiques ; chaque critique marque sa cible
+        (défi « Monte-en-l'air »).
+  - 2 nouveaux bâtiments : le Creuset légendaire (fusions) et le Cabinet des curiosités
+    (plus de curiosités, des trésors plus riches, des pièges plus forts).
+
+  NIVEAUX, MODE DE JEU, DÉFIS
+  - Objectifs de niveau : chaque niveau propose 3 objectifs (briser des curiosités,
+    vaincre le gardien en un temps limité, laisser passer peu de monstres, vaincre des
+    champions, atteindre un combo...). Chaque objectif rempli donne une étoile et
+    2 cristaux : 36 étoiles en tout, visibles dans la liste des niveaux.
+  - Nouveau mode : le RUSH DES GARDIENS (défi « Gladiateur ») : les 4 gardiens d'une
+    destination à la suite, directement dans leurs arènes, avec un record de temps.
+  - 31 nouveaux défis (208 en tout) : les nouveaux héros et billes, les fusions, les
+    objectifs, le Rush, les curiosités, les monstres marqués...
+
+NOUVEAU DANS LA VERSION 8.0 : LE GOUFFRE EN HAUTE DÉFINITION
+  - Tous les décors ont été repeints en haute définition : le sol des 12 niveaux, les
+    falaises et les parois du puits sont maintenant des textures trois fois plus fines,
+    avec un vrai relief éclairé par les torches, les billes et les monstres.
+  - Chaque niveau a gagné en détails : dalles usées et bougies des Catacombes ; mousse,
+    fougères, racines et champignons luminescents de la Forêt Fongique ; rivières de
+    lave et grilles rougeoyantes des Forges ; glace craquelée des Grottes de Givre ;
+    canal de la Cité Engloutie ; mares, nénuphars et lentilles d'eau du Marais maudit...
+    Les falaises de chaque côté du puits descendent maintenant en gradins de roche.
+  - Le campement de Fort-Rebond a un tout nouveau décor : ciel étoilé et Voie lactée,
+    lune, montagnes et forêt de sapins, palissade, chemins de terre et foyer.
+  - L'écran titre ne change pas.
+  - Les textures HD sont rangées dans le dossier « donnees » (environ 280 Mo en v8), à côté de
+    Gouffre.exe : gardez-les ensemble. Sans ce dossier, le jeu reprend ses anciens décors.
+
+  LES CURIOSITÉS DU GOUFFRE (nouveau)
+  - Toutes les 20 à 30 secondes environ, une curiosité apparaît sur le sol du niveau et
+    descend avec lui. Frappez-la avec vos billes avant qu'elle n'atteigne votre zone !
+  - Les trésors (urne funéraire, coffre moussu, géode, coffre englouti, reliquaire...) se
+    brisent en quelques coups et libèrent de l'or, de l'expérience et parfois un cœur.
+    Le rayon royal de la Ruche et le bourgeon doré du Jardin soignent ; le filon de
+    cristal des Mines et le fragment d'étoile du Néant regorgent d'expérience.
+  - Les pièges (jarre de naphte, baril de poudre, vesse-de-loup, mine marine, stalagmite
+    de givre, nid de frelons, faille instable, miroir solaire...) éclatent au premier coup
+    et frappent les monstres autour : brûlure, poison, gel, étourdissement, aveuglement,
+    éclairs ou rayons de lumière selon le niveau. Ils ne blessent jamais le héros :
+    visez-les quand une troupe de monstres passe tout près !
+  - 3 nouveaux défis : Curieux, Pilleur du Gouffre et Artificier.
+
+NOUVEAU DANS LA VERSION 7.1 : DES NIVEAUX DE 15 MINUTES
+  - Tous les niveaux (les 12, et le défi du jour) durent maintenant environ 15 minutes,
+    gardiens compris, au lieu de 6 à 9 minutes. Les deux gardiens mineurs arrivent au
+    tiers et aux deux tiers du niveau, le gardien final à la fin.
+  - La difficulté reste la même : sur un niveau plus long, les monstres font un peu
+    moins de dégâts par coup et l'expérience monte un peu moins vite (les gardiens,
+    eux, ne changent pas). Le mode infini garde ses étages courts.
+  - On gagne donc à peu près deux fois plus d'or, de monstres vaincus et de maîtrise
+    par niveau (autant par heure de jeu qu'avant).
+
+NOUVEAU DANS LA VERSION 7.0 : LE ROYAUME OUBLIÉ
+  - Une nouvelle destination de 4 niveaux, ouverte en même temps que les Profondeurs
+    (une fois le Cœur du Gouffre vaincu), avec ses propres profondeurs (jusqu'à 10) :
+      9.  Le Jardin des Lucioles : une prairie bleu-vert, des pas japonais, des fleurs
+                                   et des lucioles. Gardien : l'Arbre-Lune.
+      10. Le Marais maudit       : vase, mares croupies, roseaux et feux follets.
+                                   Gardien : le Roi-Crapaud (langue, boue, et il saute !).
+      11. Les Mines de cristal   : voie de wagonnets et grappes de cristaux.
+                                   Gardien : le Golem-Prisme et ses golems protecteurs.
+      12. Le Sanctuaire solaire  : dalles d'or, soleils gravés, sable qui vole.
+                                   Gardien : le Soleil Noir (rayons du ciel, éclipse).
+    Chaque niveau a son décor, ses falaises, sa lumière, ses particules, 6 nouveaux
+    monstres (24 en tout : lucioles, crapauds, sangsues, mineurs fantômes, momies,
+    phénix...), deux gardiens mineurs et sa musique :
+      - Jardin : une berceuse à trois temps (boîte à musique, harpe, flûte, lucioles) ;
+      - Marais : brumes et feux follets (bourdon, plaintes spectrales, crapauds, glouglous) ;
+      - Mines  : galerie scintillante (marimba, pioches au loin, roulement des wagonnets) ;
+      - Sanctuaire : l'hymne du soleil (fanfare de cuivres, chœur, taïkos, cordes au galop).
+    Vaincre le Soleil Noir déclenche une nouvelle cinématique de fin.
+  - 4 nouvelles billes et leurs évolutions :
+      Bille d'écho     (une onde frappe autour de l'impact)  + Foudre  = Tonnerre
+      Bille dorée      (plus vous êtes riche, plus elle tape) + Fer     = Midas
+      Bille de racines (enracine les monstres)              + Épine   = Ronces
+      Bille d'acide    (ronge et fait fondre les armures)   + Bombe   = Pluie acide
+  - 4 nouveaux objets : Cape d'ombre (esquive), Loupe (dégâts contre élites, champions et
+    gardiens), Ancre (dégâts dans la moitié basse du puits), Totem d'épines (des épines
+    jaillissent quand vous êtes blessé).
+  - 2 nouveaux héros : la Druidesse (régénère ses PV, ses coups enracinent ; 5 cristaux)
+    et le Marchand (+50 % d'or, plus il est riche plus il frappe fort ; défi « Négoce »).
+    L'écran des héros passe à 4 colonnes ; l'écran titre garde ses 8 héros d'origine.
+  - 2 nouveaux bâtiments au campement : la Serre (régénération pendant la descente) et
+    l'Observatoire (dégâts contre les gardiens et gardiens mineurs), avec leurs maquettes
+    3D qui évoluent à chaque niveau.
+  - 37 nouveaux défis (174 en tout) : ils débloquent les nouvelles billes, les objets et
+    le Marchand, et récompensent les profondeurs du Sanctuaire solaire, les gardiens du
+    Royaume, les nouvelles évolutions, les rangs des nouveaux héros...
+  - Le Codex défile (79 monstres, 12 gardiens, 38 billes, 19 objets).
+  - Votre sauvegarde est convertie automatiquement (les billes ont été renumérotées).
+
+NOUVEAU DANS LA VERSION 6.8 : L'ÉCRAN TITRE FAÇON AFFICHE
+  - Les huit héros entourent maintenant le titre, en grands bustes 3D comme sur une
+    affiche de film : quatre de chaque côté, au bord du logo et en bas de l'écran,
+    éclairés depuis le centre, avec un contre-jour à leur couleur et le bas du buste
+    qui se perd dans le noir. Ils respirent doucement ; les flammes du Pyromane vivent.
+  - Les héros encore à débloquer y figurent aussi, pour donner envie de les rejoindre.
+
+NOUVEAU DANS LA VERSION 6.7 : UNE MUSIQUE PAR NIVEAU
+  - Chaque niveau a maintenant son propre thème, composé pour son ambiance :
+      1. Les Catacombes        : danse macabre, une valse grinçante au xylophone d'os,
+                                 orgue de crypte et cloche qui sonne le glas
+      2. La Forêt Fongique     : clairière paisible et rêveuse, flûte, harpe et spores
+                                 qui scintillent
+      3. Les Forges Englouties : martèlement des enclumes, basse lourde, cuivres de feu
+      4. Le Cœur du Gouffre    : musique d'épouvante, un cœur qui bat, une boîte à musique
+                                 désaccordée, des sifflements dans le noir
+      5. Les Grottes de Givre  : cristaux de glace, carillons et verre frotté, calme et beau
+      6. La Cité Engloutie     : mélancolie sous l'eau, cloches noyées, bulles, piano étouffé
+      7. La Ruche d'Ambre      : le bal des abeilles, bourdonnements et pizzicati pressés
+      8. Le Néant              : requiem du vide, chœurs, timbales et cor lointain
+  - Les gardiens gardent leur musique de combat ; les haltes, celle du campement.
+  - Les musiques sont composées par le jeu au lancement, en arrière-plan.
+  - Entraînement des héros sans limite : il n'y a plus de niveau maximum. Chaque niveau
+    coûte un peu plus cher que le précédent, attribut par attribut. Les pastilles
+    changent de couleur à chaque palier de dix niveaux (or, argent, arc-en-ciel) et le
+    niveau exact s'affiche à côté.
+
+NOUVEAU DANS LA VERSION 6.6 : ENTRAÎNEMENT DES HÉROS
+  - Nouvelle monnaie : les PRISMES (petit prisme arc-en-ciel). Chaque gardien vaincu en
+    donne : 2 au début, davantage en profondeur (+1 toutes les 3 profondeurs), dans les
+    Profondeurs (+1) et en Difficile (+1) ; un de moins en Facile. Vous recevez déjà un
+    prisme pour chaque gardien vaincu avant cette version.
+  - Nouveau menu « Entraînement » au campement : case en haut de l'écran, Carré / X à la
+    manette, T au clavier, ou un clic sur la tente d'un héros.
+  - Le héros y est présenté en figurine 3D (voxels) qui tourne sur elle-même, sur un
+    socle à sa couleur : glissez la souris ou utilisez le stick droit pour la tourner
+    vous-même. L1 / R1 (ou gauche / droite) pour passer d'un héros à l'autre.
+  - À côté, ses six attributs, à faire monter avec vos prismes, par niveau :
+      Vitalité  : +6 PV max            Puissance : +3 % de dégâts
+      Cadence   : +3 % de cadence      Vitesse   : +2 % de vitesse
+      Précision : +2 % de critiques    Savoir    : +5 % d'expérience
+  - Chaque attribut a son propre prix, qui augmente à chaque niveau (1, 2, 4, 6, 9, 12,
+    16, 20, 25, 30, 36, 42... prismes) : monter la Puissance ne rend pas la Vitalité
+    plus chère.
+  - L'entraînement est propre à chaque héros. En duo, chaque attribut prend le meilleur
+    niveau des deux héros.
+  - Les prismes gagnés s'affichent pendant la descente, dans le bilan et au campement.
+
+NOUVEAU DANS LA VERSION 6.5 : VUE 2.5D
+  - Le puits est maintenant vu par une caméra inclinée, en 2.5D : le couloir se resserre
+    vers le haut, ce qui est loin est plus petit et ce qui est près plus grand, et le fond
+    se perd dans l'ombre.
+  - Le puits est encaissé : de vraies parois de pierre le bordent de chaque côté (plus
+    hautes près de vous), avec leurs torches, et le sol s'assombrit à leur pied. Chaque
+    niveau a les siennes (mousse, glaçons, braises, miel, cristaux...).
+  - Les socles des monstres montrent aussi leur côté, selon leur place dans le couloir.
+  - La visée à la souris, les barres de vie et les chiffres de dégâts suivent la vue.
+  - Options : « Vue du puits » permet de revenir à la vue de dessus.
+
+NOUVEAU DANS LA VERSION 6.4
+  - Nouvelles icônes réalistes pour les 33 billes et les 15 objets : de vrais rendus en 3D
+    (acier poli, verre, lave, glace, plasma, cuir, bois, pierre...) avec leurs effets
+    (flammes, givre, éclairs, vapeur, halo). Partout : barre de jeu, choix d'amélioration,
+    pause, encyclopédie, choix des héros et bilan.
+  - Avec le rendu GPU, ces icônes s'affichent à la pleine résolution de l'écran (nettes
+    même en 4K), le reste du jeu gardant son style pixel ; en rendu logiciel, elles sont
+    réduites proprement.
+  - Les icônes sont calculées une seule fois, en arrière-plan, au premier lancement de
+    cette version (quelques secondes, pendant lesquelles les anciennes icônes s'affichent),
+    puis gardées dans le fichier icones.bin à côté de la sauvegarde (3 Mo).
+  - Sélection des niveaux : les coches de héros dépendent maintenant de la difficulté
+    choisie (Facile, Normale, Difficile). Vos coches déjà gagnées sont rangées en Normale.
+    Une nouvelle coche rapporte moitié moins d'or en Facile et moitié plus en Difficile.
+
+NOUVEAU DANS LA VERSION 6.3
+  - Les bâtiments ne s'améliorent plus depuis le campement : le campement se regarde
+    (bâtiment choisi, effet, prix du niveau suivant) et tout se fait dans le menu
+    « Amélioration » (case en haut du campement, Triangle / Y, ou R au clavier).
+  - Pastilles des boutons et des touches (L1, R1, L2, R2, Croix, Rond, Triangle,
+    Échap...) recentrées : le symbole est au milieu du rond et le texte ne déborde
+    plus de son cadre.
+
+NOUVEAU DANS LA VERSION 6.2 : VITESSES DE JEU
+  - Trois vitesses pendant les descentes : x1, x1,5 et x2. Trois boutons en haut à droite
+    de l'écran (un clic choisit la vitesse) ; R1 / RB à la manette ou R au clavier passe
+    à la vitesse suivante.
+  - La vitesse choisie est gardée d'une partie à l'autre. Les menus (choix d'amélioration,
+    pause, haltes) restent à vitesse normale.
+  - Le jeu accélère sans rien changer à ses règles : chronomètre et records comptent le
+    temps de jeu, pas le temps réel.
+
+NOUVEAU DANS LA VERSION 6.1 : AMÉLIORATION DES BÂTIMENTS EN 3D
+  - Nouvelle case « Amélioration » en haut du campement (ou Triangle / Y, ou R au
+    clavier) : les bâtiments défilent un par un dans un menu.
+  - Chaque bâtiment est une maquette en 3D (voxels) posée sur un carré d'herbe, qui
+    tourne sur elle-même. Stick droit ou glisser à la souris : la tourner et l'incliner.
+    Gauche / Droite ou L1 / R1 : bâtiment précédent ou suivant ; la bande du bas montre
+    tous les bâtiments (flèche verte : amélioration possible, étoile : niveau maximum).
+  - Triangle / Y (ou R) : aperçu du niveau suivant, les ajouts brillent en bleu.
+  - Croix / A (ou Entrée) : améliorer. Un balayage doré reconstruit la maquette.
+  - Chaque niveau change l'apparence du bâtiment, dans le menu ET au campement :
+    lanternes, auvents, annexes, cheminées, bannières, tourelles, dômes, toits dorés...
+    Un bâtiment jamais construit apparaît en chantier (échafaudages).
+  - Les bâtiments du campement sont dessinés à partir de ces maquettes ; la fumée,
+    les étincelles et les lueurs sortent des bonnes cheminées.
+
+NOUVEAU DANS LA VERSION 6.0 : NIVEAUX UN PAR UN, DUO DE HÉROS, NOUVEAUX MENUS
+  Les niveaux se jouent un par un
+  - Les 8 biomes sont devenus 8 niveaux indépendants (les 4 du Gouffre puis les 4 des
+    Profondeurs). Chaque niveau dure environ 6 à 9 minutes : un gardien mineur au tiers,
+    un autre aux deux tiers, puis le gardien du niveau. Après chaque gardien mineur :
+    un trésor (choix d'amélioration), puis une halte (événement).
+  - Terminer un niveau ouvre le suivant et la profondeur supérieure de ce niveau.
+  - Nouvelle liste des niveaux (menu « Jouer » ou « Expédition ») : une bannière peinte
+    par niveau ; sur le niveau choisi, les icônes de vos héros sont cochées quand ils
+    l'ont terminé à cette profondeur. Chaque nouvelle coche rapporte de l'or.
+    L1 / R1 (ou Gauche / Droite) : profondeur.   R2 / L2 (ou Tab) : page « Modes de jeu »
+    (mode infini, défi du jour).   Triangle / Y (ou R) : difficulté.
+  - Le mode infini enchaîne toujours les niveaux, sans fin. Le défi du jour se joue
+    désormais sur un seul niveau (parmi ceux que vous avez ouverts).
+  Deux héros à la fois
+  - Après « Choisir », l'écran « Emmener un 2e perso ? » propose un compagnon
+    (Gauche / Droite pour en changer, ou « Aucun »). Les deux talents se cumulent, le
+    compagnon apporte sa bille de départ, et il vous suit dans le gouffre.
+  - Les deux héros gagnent de l'expérience (le compagnon les trois quarts) et sont
+    cochés sur le niveau terminé.
+  Nouveaux menus
+  - Choix d'amélioration : portrait du duo, vos 5 billes et 5 objets, cartes « Nouv. » /
+    « Niv. 2 », fiche détaillée à droite (dégâts à l'impact, effet, synergies
+    d'équipement : quelle bille donne quelle évolution). « Passer » rapporte un peu d'or.
+    L2 (ou E) : encyclopédie.   R2 (ou Tab) : détails de votre descente.
+  - Pause à trois onglets (L1 / R1, ou Tab) : Personnage (attributs, stats détaillées),
+    Équipement (chaque bille et objet), Système (encyclopédie, paramètres, succès,
+    redémarrage rapide, abandonner).
+  - Titres en police gothique.
+  Progression
+  - Votre sauvegarde est reprise : les niveaux dont vous aviez vaincu le gardien sont
+    ouverts et cochés pour vos héros victorieux, aux profondeurs déjà gagnées.
+  - Défis adaptés (« Gagner » devient « Terminer un niveau ») et 5 nouveaux défis
+    (duo, les 8 niveaux, les coches des héros, les gardiens mineurs).
+  - Une « victoire » correspond désormais à un niveau terminé.
+
+NOUVEAU DANS LA VERSION 5.1 : CINÉMATIQUES, NOUVEL ÉCRAN DES HÉROS, PERSONNAGES AGRANDIS
+  Cinématiques
+  - Introduction animée (environ 1 min 20) : la légende du Gouffre, de la nuit où la terre
+    s'est ouverte jusqu'à la première descente. Elle se lance au premier démarrage.
+  - Deux fins : l'une quand vous purifiez le Gouffre pour la première fois (l'Œil du
+    Gouffre), l'autre quand vous faites taire les Profondeurs (le Cœur du Néant).
+  - Musiques composées pour chaque cinématique, calées sur les images.
+  - Maintenir Échap (ou Croix / A sur la manette) une seconde pour passer.
+  - Pour les revoir : menu principal > « Cinématiques » (les fins se débloquent
+    quand vous les avez gagnées).
+  Écran de choix du héros
+  - Grille de portraits à gauche (cadenas sur les héros verrouillés, prix en cristaux),
+    fiche à droite : grand portrait encadré, rang et barre d'expérience, bille de
+    départ, histoire et capacité du héros, « Plus de stats… » et « Choisir ».
+  - « Choisir » ouvre « Préparer la descente » : mode, destination, profondeur et
+    difficulté, puis « Descendre ! ». La 9e case tire un héros au hasard.
+  - Huit portraits peints, un par héros.
+  Personnages agrandis et repeints
+  - Héros et monstres sont deux fois plus grands en jeu et entièrement repeints :
+    volumes ombrés, ombres violettes, contours épais, visages des héros dans l'ombre.
+  - Les monstres sont deux fois moins nombreux par ligne, mais deux fois plus
+    résistants, et rapportent deux fois plus d'expérience et d'or (même progression).
+  - En conséquence, les objectifs comptés en monstres vaincus sont divisés par deux
+    (défis, maîtrise des billes, codex).
+  - Une sauvegarde d'une version précédente est convertie automatiquement : ses
+    compteurs de monstres vaincus sont divisés par deux, si bien que votre avancement
+    (défis, maîtrise des billes, bestiaire) reste exactement le même.
+
+NOUVEAU DANS LA VERSION 5.0 : NOUVEAU STYLE GRAPHIQUE « PEINT »
+  Tout l'écran devient le décor
+  - Le puits est maintenant bordé de chaque côté par de grandes falaises peintes en
+    facettes (roche, neige, mousse, cendre, cire...) avec un replat, une bordure de
+    pierres, des buissons, cristaux, champignons, os, coraux... propres à chaque biome.
+  - Les sols des 8 biomes sont repeints : grandes touches de pinceau en diagonale,
+    couleurs claires et lumineuses (glace des Grottes de Givre, dalles des Catacombes,
+    mousse de la Forêt, pierre chaude des Forges, etc.).
+  - Éclairage « plein jour » : les couleurs peintes s'affichent telles quelles, les
+    torches, billes et cristaux ne sont plus que des accents lumineux.
+  - Les monstres se tiennent sur des socles de pierre (taillés selon le biome) qui se
+    tachent au fil des coups.
+  - Chiffres de dégâts épais et contourés (coups critiques en rouge).
+  - Interface intégrée au décor : jauge de vie en pilier de verre à gauche (avec l'XP),
+    chaîne de progression du niveau à droite (tête de mort = gardien), billes, objets
+    et compteurs en haut à gauche.
+  - Billes plus lumineuses avec un contour sombre (bien lisibles sur les sols clairs).
+  - Option « Effet écran cathodique » (lignes de balayage discrètes), activée par
+    défaut : menu Options > « Effet écran cathodique ».
+  Le style s'inspire de l'image de référence (monde peint vu de dessus, falaises, socles,
+  jauges sur les côtés) ; les décors, monstres et l'interface restent ceux de Gouffre,
+  dessinés par le programme.
+
+NOUVEAU DANS LA VERSION 4.1 : LE NIVEAU 4 N'EST PLUS UN MUR
+  Réglage de difficulté (menu Options, ou bouton « Difficulté » à côté de « Descendre ! »)
+  - Facile : monstres et gardiens -30 % de PV, dégâts subis -40 %, monstres plus lents,
+    soin complet après chaque gardien. En contrepartie : or et XP de héros -20 %.
+  - Normale : le réglage par défaut, rééquilibré (voir ci-dessous).
+  - Difficile : monstres et gardiens +30 % de PV, dégâts subis +30 %, monstres plus
+    rapides, soins réduits. En récompense : or et XP de héros +25 %.
+  - Il se change à tout moment, même pendant une descente (pause > Options) ; les
+    récompenses de la descente suivent la difficulté la plus facile utilisée.
+  Rééquilibrage (toutes difficultés)
+  - Le Cœur du Gouffre (niveau 4) envoie nettement moins de monstres à abattre :
+    PV réduits, niveau plus court, Horreur, Tentacule, Chevalier d'ombre, Obélisque
+    et Sentinelle du vide plus fragiles.
+  - Les tentacules ne se régénèrent plus que si on les laisse tranquilles 1,5 s
+    (brûlure et poison bloquent la régénération) ; les obélisques soignent deux fois
+    moins ; le bouclier du Chevalier d'ombre laisse passer 30 % des coups venus d'en bas.
+  - L'Œil du Gouffre : 5 000 PV au lieu de 6 000, tentacules gardiennes plus fragiles
+    et plus espacées, rayon moins puissant.
+  - Quand un gardien arrive, les monstres encore présents s'enfuient : le combat contre
+    le gardien se joue en duel.
+  - Chaque gardien vaincu rend 50 % des PV (100 % en Facile, 30 % en Difficile).
+  - La fin de chaque niveau monte moins brutalement, et les dégâts des monstres
+    augmentent moins d'un niveau à l'autre.
+  - Les Profondeurs sont un peu adoucies elles aussi (PV, dégâts, élites).
+  - Campement : les niveaux 7 à 12 des bâtiments coûtent beaucoup moins cher
+    (jusqu'à -60 %).
+  Mesuré en simulant des descentes complètes avec une sauvegarde de milieu de partie
+  (profondeur 1, campement à mi-chemin, meilleur niveau atteint : 4) :
+    version 4.0 : aucune victoire sur 70 descentes (8 fois sur 10 arrêté au niveau 4) ;
+    version 4.1 : 3 à 5 victoires sur 10 en Normale selon la façon de jouer,
+                  plus de 9 sur 10 en Facile.
+  Les victoires arrivant plus tôt, le 100 % se rapproche aussi un peu : en partant
+  de zéro, 52 % du Journal après 13 h de jeu (contre 41 % en version 4.0).
+
+NOUVEAU DANS LA VERSION 4.0 : « LES PROFONDEURS » — LE 100 % EN UNE CENTAINE D'HEURES
+  Une nouvelle destination
+  - Après votre première victoire, les Profondeurs s'ouvrent sous le Gouffre
+    (choix « Le Gouffre / Les Profondeurs » avant de descendre) :
+    4 nouveaux biomes (Grottes de Givre, Cité Engloutie, Ruche d'Ambre, Néant),
+    28 nouveaux monstres et 4 nouveaux gardiens (la Reine de Givre, le Léviathan,
+    la Reine-Mère, le Cœur du Néant), chacun avec ses propres attaques.
+  - Nouveaux comportements : éclats de givre qui vous ralentissent, murènes qui
+    plongent (intouchables sous l'eau), cocons et kraken qui invoquent des sbires,
+    ambre qui colle au sol, gardien qui plonge, gardien qui se téléporte...
+  - 3 événements propres aux Profondeurs (source glacée, épave engloutie, miroir du néant).
+  - En mode infini, le Gouffre et les Profondeurs alternent à chaque cycle.
+  Profondeurs 1 à 10 et malédictions
+  - Chaque destination compte désormais 10 profondeurs (au lieu de 5) ; chaque victoire
+    débloque la suivante. À partir de la profondeur 6, des malédictions s'ajoutent :
+    6 Gardiens enragés, 7 Disette, 8 Horde, 9 Tireurs d'élite, 10 Abîme.
+  Progression permanente
+  - Rangs des héros (1 à 10) : chaque descente donne de l'expérience au héros joué.
+    Chaque rang : +2 % de dégâts et +3 PV. Rang 3 : une petite bille de plus.
+    Rang 5 : talent renforcé (propre à chaque héros). Rang 7 : une relance de plus.
+    Rang 10 : tenue dorée et +5 % de coups critiques.
+  - Maîtrise des billes : chaque bille et chaque évolution gagne jusqu'à 3 étoiles
+    selon le nombre de monstres qu'elle achève (+4 % de dégâts par étoile).
+  - Bestiaire : 3 niveaux de connaissance par monstre et par gardien
+    (jusqu'à +10 % de dégâts contre l'espèce), visibles dans le Codex.
+  - Campement : niveaux maximum relevés (Forge et Infirmerie jusqu'au niveau 15),
+    deux nouveaux bâtiments (Autel des héros, Armurerie) ; les derniers niveaux
+    coûtent beaucoup d'or et aussi des cristaux.
+  - 132 défis (74 nouveaux).
+  - Journal de progression (écran titre et campement) : votre pourcentage de
+    complétion, détaillé en 8 catégories (défis, profondeurs vaincues, rangs, maîtrise,
+    bestiaire, campement, collection, mode infini).
+  - Votre sauvegarde v3 est reprise : vos héros reçoivent de l'expérience de départ
+    selon les monstres déjà vaincus.
+  Durée de vie : atteindre 100 % demande une centaine d'heures de jeu.
+    Mesuré en simulant des centaines de descentes avec un pilote automatique :
+    environ 50 % après 10 h, 60 % après 20 h, 75 % après 40 h, 83 % après 85 h.
+    Les rangs des héros se terminent vers 60-70 h, la maîtrise des billes et le
+    bestiaire vers 80-100 h ; les dernières profondeurs (malédictions), le mode
+    infini (étage 18) et les exploits demandent surtout de l'habileté.
+    Le Journal indique à tout moment ce qu'il vous reste à accomplir.
+
+NOUVEAU DANS LA VERSION 3.0 : MOTEUR GRAPHIQUE « HD-2D »
+  Le pixel art est maintenant mis en lumière par la carte graphique, à la résolution
+  native de votre écran (jusqu'en 8K) :
+  - Éclairage dynamique par pixel : chaque sprite, chaque dalle et chaque brique a
+    du relief (cartes de normales) et des reflets ; les flaques brillent sous les torches.
+  - Ombres portées en temps réel : monstres, héros et bâtiments projettent leur ombre
+    à l'opposé des torches, de la lanterne du héros, des explosions et du feu de camp.
+  - Rendu HDR : lave, yeux des monstres, fenêtres, cristaux et billes émettent leur
+    propre lumière ; bloom multi-échelle, courbe de tons filmique, étalonnage par biome.
+  - Brouillard volumétrique éclairé par les lumières, rayons de lumière poussiéreux,
+    air brûlant dans les forges, ondes de choc qui déforment l'image.
+  - Billes, traînées, étincelles, fumées, éclairs et faisceaux dessinés en haute
+    définition, lisses et lumineux ; caméra fluide (tremblements, zoom de mise en scène,
+    bandes cinéma à l'arrivée des gardiens).
+  - Profondeur de champ en haut du puits, flou derrière les menus, aberration
+    chromatique et grain discrets, vignettage.
+  - Interface et textes toujours nets, au pixel près, quelle que soit la résolution.
+
+  Réglage : Options > « Graphismes » :
+    Ultra (résolution native, par défaut), Élevée (jusqu'à la 4K), Performance
+    (jusqu'au 1080p) ou Rétro (l'ancien rendu logiciel, sans carte graphique).
+  Le jeu choisit seul le rendu logiciel si la carte graphique ne convient pas.
+  Diagnostic : %APPDATA%\Gouffre\graphismes.txt indique la carte utilisée.
+  Pour forcer le rendu logiciel : lancer « Gouffre.exe --logiciel ».
+
+NOUVEAU DANS LA VERSION 2.0
+  Graphismes
+  - Nouveau moteur d'effets : lueurs (bloom), étalonnage des couleurs par biome,
+    ondes de choc, air brûlant dans les forges, arrêts sur image lors des gros coups.
+  - Sols entièrement redessinés : dalles et bougies des catacombes, racines et
+    champignons lumineux de la forêt, rivières de lave animées, veines du vide.
+  - Murs décorés qui défilent (bannières, lianes, tuyaux, cristaux) et torches vivantes.
+  - Sprites ombrés et détourés, animations de marche, ombres portées,
+    traînées lumineuses des billes, monstres qui éclatent en morceaux.
+  - Nouvelle interface, barre de vie du gardien, écran titre animé (le puits vu
+    d'en haut), campement vivant (héros, lucioles, fumée, étoiles filantes).
+  Contenu
+  - 3 nouveaux héros : la Nécromancienne, l'Horlogère, le Pyromane.
+  - 4 nouvelles billes (lumière, folle, cristal, vent) et 6 nouvelles évolutions
+    (14 au total) ; 4 nouveaux objets ; 4 nouveaux monstres ; des « champions ».
+  - Des événements entre les niveaux (fontaine, forgeron, pacte des ombres, coffre...).
+  Durée de vie
+  - 58 défis qui rapportent de l'or, des cristaux et débloquent billes, objets,
+    héros et modes de jeu (certaines billes et objets sont à débloquer).
+  - Codex : monstres, gardiens, billes et objets découverts.
+  - Mode Infini (après la première victoire) : les étages s'enchaînent sans fin.
+  - Défi du jour (après 3 descentes) : un héros et deux modificateurs imposés,
+    un score à battre chaque jour.
+  - Campement agrandi : bâtiments jusqu'au niveau 8 et nouveau Laboratoire.
+
+MANETTE (Xbox, PS5 DualSense, PS4 DualShock 4, Nintendo, manettes génériques)
+  Stick gauche / croix directionnelle : se déplacer, naviguer dans les menus
+  Stick droit        : viser (relâché = visée automatique, réglable)
+  A / Croix          : valider
+  B / Rond           : retour
+  Y / Triangle       : changer de visée, relancer les choix, difficulté (liste des niveaux),
+                       menu Amélioration (campement), aperçu du niveau suivant
+  X / Carré          : passer un choix d'amélioration, menu Entraînement (campement)
+  L1 / R1 (LB / RB)  : profondeur (liste des niveaux), onglets (pause, codex)
+  R1 (RB)            : vitesse de jeu x1 / x1,5 / x2 (pendant une descente)
+  L2 / R2 (LT / RT)  : page des modes de jeu, encyclopédie / détails (améliorations)
+  Start / Options    : pause
+  Branchez la manette en USB ou en Bluetooth : le jeu passe tout seul en mode manette
+  et affiche les bons boutons. Les vibrations fonctionnent avec les manettes Xbox.
+  Les manettes PS5 et PS4 sont lues directement (sans DS4Windows ni Steam).
+
+  TESTER LA MANETTE : menu Options > « Tester la manette ». Les boutons et les sticks
+  s'allument quand on les utilise. Pour revenir : Échap, clic, ou maintenir Rond / B.
+  Si rien ne s'allume :
+    - attendez 3 secondes après avoir branché la manette, ou rebranchez-la ;
+    - fermez les logiciels qui peuvent s'en emparer (Steam, DS4Windows, DSX...) ;
+    - le fichier %APPDATA%\Gouffre\manettes.txt décrit ce que le jeu détecte :
+      envoyez-le pour obtenir de l'aide.
+
+CLAVIER / SOURIS
+  ZQSD ou flèches : se déplacer       Souris : viser
+  Espace : visée automatique          1, 2, 3 ou clic : choisir une carte
+  R : relancer les choix / vitesse    Échap : pause
+  Retour arrière : passer un choix    E : encyclopédie (pendant un choix)
+  Tab : page / onglet / détails       F11 ou Alt+Entrée : plein écran
+  Campement : flèches ou clic pour choisir un bâtiment, R : menu Amélioration,
+              T : menu Entraînement (ou clic sur la tente d'un héros)
+  Menu Amélioration : Entrée améliore, R montre l'aperçu, glisser la souris fait tourner
+  Menu Entraînement : gauche / droite change de héros, haut / bas choisit l'attribut,
+                      Entrée entraîne, glisser la souris fait tourner la figurine
+
+ASTUCES
+  - Bloqué à un niveau ? Passez en Facile le temps de progresser au campement
+    (Forge et Infirmerie d'abord), puis revenez en Normale.
+  - Contre les monstres qui se régénèrent, les billes de feu et de venin empêchent
+    la régénération tant que la brûlure ou le poison agit.
+  - Visez les trous entre les monstres : une bille coincée au-dessus d'eux fait des ravages.
+  - Deux billes au niveau 3 qui vont ensemble fusionnent en ÉVOLUTION : la fiche d'une
+    bille (choix d'amélioration) montre ses synergies.
+  - L'or et les cristaux gagnés servent au campement : bâtiments à améliorer
+    et nouveaux héros à débloquer. Consultez les Défis pour savoir quoi viser.
+  - Les prismes des gardiens entraînent vos héros : les premiers niveaux ne coûtent
+    presque rien, répartissez-les avant de pousser un seul attribut.
+  - Terminer un niveau débloque sa « profondeur » suivante, plus difficile et plus riche.
+  - Un niveau trop dur ? Emmenez un compagnon : deux talents valent mieux qu'un.
+  - Les étoiles de maîtrise se gagnent bille par bille : variez vos billes !
+  - Jouez tous les héros : chacun a ses propres rangs et son talent du rang 5.
+  - Le Journal indique ce qu'il reste à accomplir pour atteindre 100 %.
+  - Si votre ordinateur peine, choisissez « Graphismes : Élevée » ou « Performance »,
+    ou désactivez « Lueurs et étalonnage » dans les options.
+  - Les lignes de balayage vous gênent ? Options > « Effet écran cathodique : non ».
+
+SAUVEGARDE
+  %APPDATA%\Gouffre\sauvegarde.txt
+
+POLICE DES TITRES
+  Les titres utilisent une police dérivée de « Jacquard 24 » et « Jacquard 12 »
+  (Copyright 2023 The Soft Type Project Authors), sous licence SIL Open Font License 1.1 :
+  voir le fichier LICENCE_POLICE_OFL.txt.
+
+SOURCES
+  Le dossier « sources » contient tout le code (C) : graphismes, sons et musiques sont
+  générés par le programme (sauf la police des titres, convertie depuis Jacquard). Pour recompiler depuis Linux/WSL avec mingw-w64 :
+  sh build_windows.sh

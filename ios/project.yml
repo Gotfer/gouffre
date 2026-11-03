@@ -1,0 +1,39 @@
+# Projet Xcode genere par XcodeGen (voir .github/workflows/ios.yml)
+name: Gouffre
+options:
+  bundleIdPrefix: fr.gouffre
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  Gouffre:
+    type: application
+    platform: iOS
+    sources:
+      - path: ios_main.m
+      - path: ../src
+        excludes:
+          - "win32_main.c"
+          - "win32_pads.c"
+          - "headless_main.c"
+          - "hdgen*.c"
+          - "ambgen.c"
+          - "*.h"
+      - path: Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.gouffre.jeu
+        INFOPLIST_FILE: Info.plist
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GCC_C_LANGUAGE_STANDARD: c11
+        CLANG_ENABLE_OBJC_ARC: YES
+        HEADER_SEARCH_PATHS: $(SRCROOT)/../src
+        GCC_OPTIMIZATION_LEVEL: "2"
+        GCC_WARN_INHIBIT_ALL_WARNINGS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGN_IDENTITY: ""
+    dependencies:
+      - sdk: GameController.framework
+      - sdk: CoreHaptics.framework
+      - sdk: AVFoundation.framework
+      - sdk: AudioToolbox.framework
