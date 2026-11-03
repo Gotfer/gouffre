@@ -1,9 +1,13 @@
 # Compile Gouffre pour iPhone sur un Mac de GitHub et produit Gouffre.ipa (non signe :
 # AltStore ou SideStore le signent avec votre identifiant Apple au moment de l'installer).
+# Le fichier est publie dans « Releases » (iphone) et sur la branche « ipa ».
 name: iPhone
 on:
   push:
+    branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   ipa:
     runs-on: macos-15
@@ -25,3 +29,15 @@ jobs:
         with:
           name: Gouffre-iPhone
           path: ios/Gouffre.ipa
+      - name: Publication (Releases)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete iphone --yes --cleanup-tag || true
+          gh release create iphone ios/Gouffre.ipa --title "Gouffre pour iPhone" --notes "Version iPhone de Gouffre (non signée) : à installer avec AltStore ou SideStore."
+      - name: Publication (branche ipa)
+        run: |
+          mkdir /tmp/pub && cp ios/Gouffre.ipa /tmp/pub/ && cd /tmp/pub
+          git init -q -b ipa && git add Gouffre.ipa
+          git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Gouffre.ipa ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ipa
