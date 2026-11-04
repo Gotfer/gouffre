@@ -128,7 +128,7 @@ void title_frame(float dt){
   text_draw(SCREEN_W/2,324,b,HEX(0xb0a8c0),1,AL_CENTER,TX_SHADOW);
   text_draw(8,SCREEN_H-14,g_gpu?"v10.2":"v10.2 (rendu logiciel)",HEX(0x6a6478),1,AL_LEFT,0);
   if(A.pad){ snprintf(b,sizeof b,"%s : valider   %s : retour",btn(B_CONFIRM),btn(B_BACK)); text_draw(SCREEN_W-8,SCREEN_H-14,b,HEX(0x8a82a0),1,AL_RIGHT,0); }
-  else text_draw(SCREEN_W-8,SCREEN_H-14,"Souris ou Flèches + Entrée   F11 : plein écran",HEX(0x6a6478),1,AL_RIGHT,0);
+  else text_draw(SCREEN_W-8,SCREEN_H-14,A.touch?"Touchez pour choisir":"Souris ou Flèches + Entrée   F11 : plein écran",HEX(0x6a6478),1,AL_RIGHT,0);
   if(g_in && g_in->pad_on){ snprintf(b,sizeof b,"Manette : %s",g_in->pad_name); text_draw(8,SCREEN_H-28,b,HEX(0x6a6478),1,AL_LEFT,0); }
 }
 
@@ -436,6 +436,7 @@ void charsel_frame(float dt){
     else if((A.reroll||A.tab_r) && sel>=0){ cs_over=1; sfx(SFX_CLICK); }
     else if(A.back){ cs_sel=-1; goto_state(GS_LEVELS); return; }
     if(A.pad) snprintf(b,sizeof b,"%s : choisir   %s : plus de stats   %s : retour",btn(B_CONFIRM),btn(B_ALT),btn(B_BACK));
+    else if(A.touch) snprintf(b,sizeof b,"Touchez un héros, puis Choisir   Échap : retour");
     else snprintf(b,sizeof b,"Flèches : héros   Entrée : choisir   R : plus de stats   Échap : retour");
     text_draw(464,340,b,HEX(0x8a7a80),1,AL_CENTER,0);
     return;
@@ -663,6 +664,7 @@ void camp_frame(float dt){
   else snprintf(b,sizeof b,"^7Actuel :^0 %s   ^1(niveau maximum)",e1);
   text_draw(18,323,b,HEX(0xd8d0e4),1,AL_LEFT,0);
   if(A.pad){ char hb[200]; snprintf(hb,sizeof hb,"Flèches : choisir   %s : Amélioration   %s : Entraînement   %s : expédition   %s : menu",btn(B_ALT),btn(B_X),btn(B_START),btn(B_BACK)); text_draw(18,339,hb,HEX(0x8a82a0),1,AL_LEFT,0); }
+  else if(A.touch) text_draw(18,339,"Touchez un bâtiment ou une tente   Échap : menu",HEX(0x6a6478),1,AL_LEFT,0);
   else text_draw(18,339,"Flèches ou clic : choisir   R : Amélioration   T : Entraînement   E : expédition   Échap : menu",HEX(0x6a6478),1,AL_LEFT,0);
   /* le campement se regarde seulement : on ameliore dans le menu « Amélioration » */
   { int rx=620;

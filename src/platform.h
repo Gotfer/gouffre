@@ -35,6 +35,10 @@ typedef struct {
   float lx, ly, rx, ry;  /* sticks -1..1, y vers le bas */
   float lt, rt;
   bool pad[PAD_COUNT], pad_pressed[PAD_COUNT];
+  /* ecran tactile (iPhone) : sticks virtuels */
+  bool touch;            /* la derniere commande vient du doigt */
+  float tmx, tmy;        /* stick de deplacement -1..1 */
+  bool taim; float tax, tay;   /* stick de visee (direction) */
 } Input;
 
 /* --- fourni par le jeu --- */

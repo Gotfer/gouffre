@@ -891,7 +891,7 @@ void cine_frame(float dt){
     if(s->c2 && lt>=s->t2){ float a= lt>end ? 1-(lt-end)/0.3f : 1; caption(s->c2,lt-s->t2,clampf(a,0,1)); } }
   /* « maintenir pour passer » */
   { float a = cn_hold>0 ? 1.0f : (cn_hint>0 ? 0.8f : (cn_t>1.5f ? 0.38f : 0));
-    if(a>0){ char b[96]; snprintf(b,sizeof b,"Maintenir %s pour passer",A.pad?btn(B_CONFIRM):"Échap"); int w=text_w(b,1);
+    if(a>0){ char b[96]; snprintf(b,sizeof b,"Maintenir %s pour passer",A.pad?btn(B_CONFIRM):(A.touch?"le doigt":"Échap")); int w=text_w(b,1);
       text_draw(SCREEN_W-12,11,b,col_lerp(HEX(0x000000),HEX(0xb0a8c0),a),1,AL_RIGHT,0);
       int cx=SCREEN_W-12-w-10, cy=15; gfx_ring(cx,cy,5,col_lerp(HEX(0x000000),HEX(0x4a4458),a));
       int seg2=(int)(clampf(cn_hold,0,1)*28); for(int k=0;k<seg2;k++){ float an=-PI*0.5f+k*TAU/28; gfx_pset(cx+(int)roundf(cosf(an)*5),cy+(int)roundf(sinf(an)*5),HEX(0xffd84a)); gfx_pset(cx+(int)roundf(cosf(an)*4),cy+(int)roundf(sinf(an)*4),HEX(0xc9a24a)); } } }

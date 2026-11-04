@@ -573,5 +573,6 @@ void training_frame(float dt){
   strip(dt);
   /* aide */
   if(A.pad){ char t[220]; snprintf(t,sizeof t,"L1 / R1 : héros   Haut / Bas : attribut   %s : entraîner   Stick droit : tourner   %s : retour",btn(B_CONFIRM),btn(B_BACK)); text_draw(320,346,t,HEX(0x8a82a0),1,AL_CENTER,0); }
+  else if(A.touch) text_draw(320,346,"Touchez : choisir   Glisser : tourner   Échap : retour",HEX(0x8a82a0),1,AL_CENTER,0);
   else text_draw(320,346,"Gauche / Droite : héros   Haut / Bas : attribut   Entrée : entraîner   Glisser la souris : tourner   Échap : retour",HEX(0x8a82a0),1,AL_CENTER,0);
 }

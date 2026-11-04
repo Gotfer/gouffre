@@ -288,6 +288,12 @@ static void compute_actions(Input *in,float dt){
     a.movey=(float)((in->key[KEY_DOWN]||in->pad[PAD_DOWN])-(in->key[KEY_UP]||in->pad[PAD_UP]));
   } else if(in->pad_on){ a.movex=dz(in->lx); a.movey=dz(in->ly); }
   if(in->pad_on){ float m=sqrtf(in->rx*in->rx+in->ry*in->ry); if(m>0.35f){ a.aim_stick=true; a.aimx=in->rx/m; a.aimy=in->ry/m; } }
+  /* au doigt : sticks virtuels analogiques */
+  a.touch = in->touch && !pad_mode;
+  if(a.touch){
+    if(fabsf(in->tmx)>0.01f || fabsf(in->tmy)>0.01f){ a.movex=in->tmx; a.movey=in->tmy; }
+    float m=sqrtf(in->tax*in->tax+in->tay*in->tay); if(in->taim && m>0.01f){ a.aim_stick=true; a.aimx=in->tax/m; a.aimy=in->tay/m; }
+  }
   A=a;
 }
 

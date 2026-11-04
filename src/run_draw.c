@@ -1319,9 +1319,9 @@ static void draw_hud(void){
       int bw=40; gfx_rect(ex-bw,yy+(R.combo>=50?37:27),(int)(bw*clampf(R.combo_t/1.2f,0,1)),2,cc); } }
   hud_level_gauge();
   /* aide discrete */
-  if(A.pad) snprintf(b,sizeof b,"Visée : %s",S.pad_autoaim?"^2auto":"^4stick"); else snprintf(b,sizeof b,"Visée : %s",R.autoaim?"^2auto":"^4souris");
+  if(A.pad) snprintf(b,sizeof b,"Visée : %s",S.pad_autoaim?"^2auto":"^4stick"); else snprintf(b,sizeof b,"Visée : %s",R.autoaim?"^2auto":(A.touch?"^4doigt":"^4souris"));
   text_draw(SCREEN_W-30,348,b,HEX(0xc8c0d8),1,AL_RIGHT,TX_OUTLINE);
-  if(S.runs<3){ if(A.pad) snprintf(b,sizeof b,"%s : pause   %s : visée",btn(B_START),btn(B_ALT)); else snprintf(b,sizeof b,"Échap : pause   Espace : visée");
+  if(S.runs<3){ if(A.pad) snprintf(b,sizeof b,"%s : pause   %s : visée",btn(B_START),btn(B_ALT)); else if(A.touch) snprintf(b,sizeof b,"Boutons Pause et Visée sur les côtés"); else snprintf(b,sizeof b,"Échap : pause   Espace : visée");
     text_draw(SCREEN_W-30,337,b,HEX(0x9a94a8),1,AL_RIGHT,TX_OUTLINE); }
   /* v9 : objectifs du niveau, au debut de la descente */
   if(R.mode==MODE_NORMAL && R.single && R.sub==RS_PLAY && R.total_time>1.0f && R.total_time<10.0f){
@@ -1371,7 +1371,7 @@ static void tutorial(void){
   float a=clampf(R.tutorial_t,0,1);
   int cx=(PIT_X0+PIT_X1)/2;
   gfx_rect_a(cx-132,176,264,48,HEX(0x0a0810),(int)(a*180));
-  text_draw(cx,180,A.pad?"Stick gauche : se déplacer   Stick droit : viser":"ZQSD / Flèches : se déplacer   Souris : viser",col_scale(HEX(0xf0e6d0),a),1,AL_CENTER,TX_SHADOW);
+  text_draw(cx,180,A.pad?"Stick gauche : se déplacer   Stick droit : viser":(A.touch?"Pouce gauche : se déplacer   Pouce droit : viser":"ZQSD / Flèches : se déplacer   Souris : viser"),col_scale(HEX(0xf0e6d0),a),1,AL_CENTER,TX_SHADOW);
   text_draw(cx,193,"Les billes partent seules et reviennent au sol.",col_scale(HEX(0xb0a8c0),a),1,AL_CENTER,TX_SHADOW);
   text_draw(cx,206,"Ne laissez pas les monstres atteindre le fond !",col_scale(HEX(0xff8a7a),a),1,AL_CENTER,TX_SHADOW);
 }
@@ -1428,7 +1428,7 @@ static void draw_event(void){
     ui_end();
   } else {
     text_wrap(332,150,278,R.ev_msg,HEX(0xf0e6d0),1,TX_SHADOW,12);
-    if(R.ev_t>0.4f){ snprintf(b,sizeof b,A.pad?"%s : continuer la descente":"Entrée / clic : continuer la descente",btn(B_CONFIRM)); text_draw(471,294,b,HEX(0x8a82a0),1,AL_CENTER,0); }
+    if(R.ev_t>0.4f){ snprintf(b,sizeof b,A.pad?"%s : continuer la descente":(A.touch?"Touchez pour continuer la descente":"Entrée / clic : continuer la descente"),btn(B_CONFIRM)); text_draw(471,294,b,HEX(0x8a82a0),1,AL_CENTER,0); }
   }
   text_draw(SCREEN_W/2,8,R.mode==MODE_ENDLESS?"Entre deux étages":(R.single?"Une halte dans la descente":"Entre deux niveaux"),HEX(0x6a6478),1,AL_CENTER,0);
 }
@@ -1473,7 +1473,7 @@ static void event_gpu(void){
     ui_end();
   } else {
     text_wrap(332,150,278,R.ev_msg,HEX(0xf0e6d0),1,TX_SHADOW,12);
-    if(R.ev_t>0.4f){ snprintf(b,sizeof b,A.pad?"%s : continuer la descente":"Entrée / clic : continuer la descente",btn(B_CONFIRM)); text_draw(471,294,b,HEX(0x8a82a0),1,AL_CENTER,0); }
+    if(R.ev_t>0.4f){ snprintf(b,sizeof b,A.pad?"%s : continuer la descente":(A.touch?"Touchez pour continuer la descente":"Entrée / clic : continuer la descente"),btn(B_CONFIRM)); text_draw(471,294,b,HEX(0x8a82a0),1,AL_CENTER,0); }
   }
   text_draw(SCREEN_W/2,8,R.mode==MODE_ENDLESS?"Entre deux étages":(R.single?"Une halte dans la descente":"Entre deux niveaux"),HEX(0x6a6478),1,AL_CENTER,0);
 }

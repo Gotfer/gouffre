@@ -2184,14 +2184,14 @@ static void update_player(float dt){
   if(A.aim_stick){
     R.aim_ang=atan2f(A.aimy,A.aimx); R.aim_hold=0.35f;
     R.aimx=R.px+A.aimx*120; R.aimy=(R.py-8)+A.aimy*120;
-  } else if(A.pad && R.aim_hold>0){
+  } else if((A.pad||A.touch) && R.aim_hold>0){
     R.aim_hold-=dt; R.aimx=R.px+cosf(R.aim_ang)*120; R.aimy=(R.py-8)+sinf(R.aim_ang)*120;
   } else if(A.pad ? S.pad_autoaim : R.autoaim){
     float tx=R.px, ty=R.py-200; float best=-1e9f;
     if(R.boss.on && R.boss.enter>=1 && R.boss.dying<=0){ tx=R.boss.x; ty=R.boss.y; best=1e9f; }
     for(int i=0;i<MAX_EN && best<1e8f;i++){ Enemy *e=&R.en[i]; if(!e->on || e->y<4) continue; float sc=e->y - fabsf(e->x-R.px)*0.35f; if(sc>best){ best=sc; tx=e->x; ty=e->y; } }
     R.aimx=lerpf(R.aimx,tx,minf(1,dt*10)); R.aimy=lerpf(R.aimy,ty,minf(1,dt*10));
-  } else if(A.pad){ R.aimx=R.px+cosf(R.aim_ang)*120; R.aimy=(R.py-8)+sinf(R.aim_ang)*120; }
+  } else if(A.pad||A.touch){ R.aimx=R.px+cosf(R.aim_ang)*120; R.aimy=(R.py-8)+sinf(R.aim_ang)*120; }
   else { p25_inv(A.mx,A.my,&R.aimx,&R.aimy); }   /* la souris vise dans la vue 2.5D */
   /* tir */
   R.fire_cd-=dt;
@@ -2316,7 +2316,7 @@ static void run_step(float dt){
       if(A.pause){ run_pause(); break; }
       if(A.toggle_aim){
         if(A.pad){ S.pad_autoaim=!S.pad_autoaim; add_ftext(R.px,R.py-30,S.pad_autoaim?"Visée auto":"Visée au stick",HEX(0xffd84a),1); }
-        else { R.autoaim=!R.autoaim; S.autoaim=R.autoaim; add_ftext(R.px,R.py-30,R.autoaim?"Visée auto":"Visée souris",HEX(0xffd84a),1); }
+        else { R.autoaim=!R.autoaim; S.autoaim=R.autoaim; add_ftext(R.px,R.py-30,R.autoaim?"Visée auto":(A.touch?"Visée au doigt":"Visée souris"),HEX(0xffd84a),1); }
         sfx(SFX_CLICK);
       }
       if(!R.boss_spawned){

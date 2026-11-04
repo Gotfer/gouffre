@@ -305,5 +305,6 @@ void upgrade_frame(float dt){
   strip(dt);
   /* aide */
   if(A.pad){ char t[200]; snprintf(t,sizeof t,"L1 / R1 : bâtiment   %s : améliorer   %s : aperçu   Stick droit : tourner   %s : retour",btn(B_CONFIRM),btn(B_ALT),btn(B_BACK)); text_draw(320,346,t,HEX(0x8a82a0),1,AL_CENTER,0); }
+  else if(A.touch) text_draw(320,346,"Touchez : choisir   Glisser : tourner   Échap : retour",HEX(0x8a82a0),1,AL_CENTER,0);
   else text_draw(320,346,"Flèches : bâtiment   Entrée : améliorer   R : aperçu   Glisser la souris : tourner   Échap : retour",HEX(0x8a82a0),1,AL_CENTER,0);
 }

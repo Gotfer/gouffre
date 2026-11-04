@@ -164,6 +164,7 @@ int main(int argc,char **argv){
     if(weak_boss && g_state==GS_RUN && R.boss.on && R.boss.enter>=1 && R.boss.hp>R.boss.hpmax*0.02f && R.boss.dying<=0) R.boss.hp=R.boss.hpmax*0.02f;
     if(weak_boss && g_state==GS_RUN && R.mb_on){ for(int q=0;q<MAX_EN;q++){ Enemy *e=&R.en[q]; if(e->on && e->mboss && e->y>=70 && e->hp>e->hpmax*0.02f) e->hp=e->hpmax*0.02f; } }
     for(int k=0;k<KEY_COUNT;k++) if(in.key_pressed[k]) in.key[k]=true;
+    if(getenv("GOUFFRE_TOUCH")){ in.touch=true; in.pad_on=false; if(g_state==GS_RUN && f>300){ in.tmx=sinf(f*0.03f); in.tmy=0.2f; in.taim=(f/120)%2; in.tax=0.6f; in.tay=-0.8f; } }   /* tests : jeu au doigt */
     game_frame(&in,1.0f/60);
     game_audio_mix(audio,735);
     for(int k=0;k<735*2;k++){ int v=abs(audio[k]); if(v>peak) peak=v; if(v>=32000) clipped++; }

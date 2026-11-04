@@ -3,8 +3,9 @@
      Documents/donnees est present) ; a defaut, rendu logiciel 640x360 en pixels nets
    - son : AudioUnit (RemoteIO), 44,1 kHz stereo
    - manette : GameController (DualSense, DualShock, Xbox, MFi), vibrations par CoreHaptics
-   - tactile : au doigt, comme une souris dans les menus ; pendant une descente,
-     moitie gauche = stick virtuel, moitie droite = visee ; deux doigts = pause */
+   - tactile : au doigt, comme une souris dans les menus (glisser = defiler) ; pendant une
+     descente, deux sticks virtuels flottants (pouce gauche : deplacement analogique,
+     pouce droit : visee) ; boutons Pause / Vitesse / Visee dans les bandes sur les cotes */
 #import <UIKit/UIKit.h>
 #import <GameController/GameController.h>
 #import <CoreHaptics/CoreHaptics.h>
@@ -82,16 +83,25 @@ static void gl_start(void){
 }
 
 /* ---------------- vue du jeu ---------------- */
-#define MAXT 8
+/* boutons tactiles, ranges dans les bandes noires sur les cotes de l'image */
+enum { TB_PAUSE, TB_SPEED, TB_AIM, TB_N };
+static const int TB_KEY[TB_N]={KEY_ESCAPE,KEY_R,KEY_TAB};
+static const bool TB_PLAY[TB_N]={false,true,true};
+#define STICK_R 54.0f      /* rayon du stick virtuel (points) */
+
 @interface GameView : UIView
 @end
 @implementation GameView {
   CADisplayLink *_link; double _last; Input _in;
   bool _prevKey[KEY_COUNT], _prevPad[PAD_COUNT], _prevMb[MOUSE_COUNT];
-  /* tactile */
-  UITouch *_stick; CGPoint _stick0, _stickP;   /* stick virtuel (moitie gauche, pendant une descente) */
-  UITouch *_aim;                               /* visee / souris */
-  bool _tap, _mouseDown, _escape; float _tx, _ty; bool _moved;
+  /* tactile : menus (doigt = souris) */
+  UITouch *_aim; bool _tap, _mouseDown; float _tx, _ty; bool _moved; float _scrollAcc, _lastGY; int _wheel;
+  /* tactile : partie (deux sticks virtuels flottants) */
+  UITouch *_mv; CGPoint _mv0, _mvP;
+  UITouch *_am; CGPoint _am0, _amP; double _amT; float _amMax;
+  /* boutons */
+  UIView *_btn[TB_N]; UILabel *_btnL[TB_N]; UITouch *_btnT[TB_N]; bool _btnPress[TB_N];
+  UIView *_ovl; CAShapeLayer *_sb[2], *_sk[2];
   CGColorSpaceRef _cs;
   UIView *_cpu;                                /* image du rendu logiciel (si pas de GPU) */
   GLuint _fb, _rb; GLint _bw, _bh;             /* image GPU : tampon de l'ecran */
@@ -108,6 +118,25 @@ static void gl_start(void){
     _cpu.userInteractionEnabled=NO; _cpu.backgroundColor=[UIColor blackColor];
     _cpu.layer.magnificationFilter=kCAFilterNearest; _cpu.layer.contentsGravity=kCAGravityResizeAspect;
     [self addSubview:_cpu];
+    /* calque des commandes tactiles (dessin seulement : les doigts sont lus par cette vue) */
+    _ovl=[[UIView alloc] initWithFrame:self.bounds]; _ovl.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    _ovl.userInteractionEnabled=NO; _ovl.backgroundColor=[UIColor clearColor]; [self addSubview:_ovl];
+    for(int i=0;i<2;i++){
+      _sb[i]=[CAShapeLayer layer]; _sb[i].path=[UIBezierPath bezierPathWithOvalInRect:CGRectMake(-STICK_R,-STICK_R,STICK_R*2,STICK_R*2)].CGPath;
+      _sb[i].fillColor=[UIColor colorWithWhite:1 alpha:0.07].CGColor; _sb[i].strokeColor=[UIColor colorWithWhite:1 alpha:0.35].CGColor; _sb[i].lineWidth=2; _sb[i].hidden=YES;
+      _sk[i]=[CAShapeLayer layer]; _sk[i].path=[UIBezierPath bezierPathWithOvalInRect:CGRectMake(-23,-23,46,46)].CGPath;
+      _sk[i].fillColor=(i==0?[UIColor colorWithWhite:1 alpha:0.32]:[UIColor colorWithRed:1 green:0.85 blue:0.3 alpha:0.38]).CGColor; _sk[i].hidden=YES;
+      [_ovl.layer addSublayer:_sb[i]]; [_ovl.layer addSublayer:_sk[i]];
+    }
+    for(int i=0;i<TB_N;i++){
+      UIView *b=[[UIView alloc] initWithFrame:CGRectMake(0,0,60,60)]; b.userInteractionEnabled=NO;
+      b.backgroundColor=[UIColor colorWithWhite:0.08 alpha:0.55]; b.layer.borderWidth=1.5; b.layer.borderColor=[UIColor colorWithRed:0.78 green:0.58 blue:0.35 alpha:0.7].CGColor;
+      UILabel *l=[[UILabel alloc] initWithFrame:b.bounds]; l.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+      l.textAlignment=NSTextAlignmentCenter; l.numberOfLines=2; l.adjustsFontSizeToFitWidth=YES; l.minimumScaleFactor=0.6;
+      l.textColor=[UIColor colorWithRed:0.98 green:0.93 blue:0.85 alpha:1]; l.font=[UIFont boldSystemFontOfSize:13];
+      [b addSubview:l]; [_ovl addSubview:b]; _btn[i]=b; _btnL[i]=l;
+    }
+    _btnL[TB_SPEED].text=@"⏩\nVitesse"; _btnL[TB_AIM].text=@"◎\nVisée"; _btnL[TB_PAUSE].text=@"❚❚\nPause";
     _cs=CGColorSpaceCreateDeviceRGB();
     memset(&_in,0,sizeof _in); _tx=SCREEN_W/2; _ty=SCREEN_H/2;
     _link=[CADisplayLink displayLinkWithTarget:self selector:@selector(tick:)];
@@ -116,8 +145,27 @@ static void gl_start(void){
   }
   return self;
 }
+/* rectangle de l'image (proportions conservees) */
+- (CGRect)gameRect {
+  CGSize b=self.bounds.size; float k=fminf(b.width/SCREEN_W,b.height/SCREEN_H);
+  float w=SCREEN_W*k, h=SCREEN_H*k; return CGRectMake((b.width-w)/2,(b.height-h)/2,w,h);
+}
+- (void)layoutButtons {
+  CGRect g=[self gameRect]; CGSize B=self.bounds.size; float bar=g.origin.x;
+  if(bar>=50){   /* iPhone : bandes noires sur les cotes */
+    float s=fminf(bar-10,68), lx=bar/2, rx=B.width-bar/2, yt=g.origin.y+g.size.height*0.20f, yb=g.origin.y+g.size.height*0.80f;
+    _btn[TB_PAUSE].center=CGPointMake(lx,yt); _btn[TB_SPEED].center=CGPointMake(lx,yb); _btn[TB_AIM].center=CGPointMake(rx,yt);
+    for(int i=0;i<TB_N;i++){ _btn[i].bounds=CGRectMake(0,0,s,s); _btn[i].layer.cornerRadius=s*0.26f; _btn[i].alpha=1; }
+  } else {       /* iPad : sur l'image, discrets */
+    float s=56;
+    _btn[TB_PAUSE].center=CGPointMake(g.origin.x+s*0.5f+8,g.origin.y+g.size.height*0.45f);
+    _btn[TB_SPEED].center=CGPointMake(g.origin.x+s*0.5f+8,g.origin.y+g.size.height*0.62f);
+    _btn[TB_AIM].center=CGPointMake(CGRectGetMaxX(g)-s*0.5f-8,g.origin.y+g.size.height*0.62f);
+    for(int i=0;i<TB_N;i++){ _btn[i].bounds=CGRectMake(0,0,s,s); _btn[i].layer.cornerRadius=s*0.26f; _btn[i].alpha=0.75f; }
+  }
+}
 - (void)layoutSubviews {
-  [super layoutSubviews];
+  [super layoutSubviews]; [self layoutButtons];
   if(!g_ctx || !_rb) return;
   [EAGLContext setCurrentContext:g_ctx];
   glBindRenderbuffer(GL_RENDERBUFFER,_rb);
@@ -143,24 +191,41 @@ static void gl_start(void){
   return true;
 }
 /* rectangle de l'image (proportions conservees) */
-- (CGRect)gameRect {
-  CGSize b=self.bounds.size; float k=fminf(b.width/SCREEN_W,b.height/SCREEN_H);
-  float w=SCREEN_W*k, h=SCREEN_H*k; return CGRectMake((b.width-w)/2,(b.height-h)/2,w,h);
-}
 - (CGPoint)toGame:(CGPoint)p { CGRect r=[self gameRect]; return CGPointMake((p.x-r.origin.x)/r.size.width*SCREEN_W,(p.y-r.origin.y)/r.size.height*SCREEN_H); }
-- (bool)inPlay { return g_state==GS_RUN && R.sub==RS_PLAY; }
+- (bool)inPlay { return g_state==GS_RUN && (R.sub==RS_PLAY || R.sub==RS_INTRO); }
+- (int)buttonAt:(CGPoint)p {
+  for(int i=0;i<TB_N;i++){ if(_btn[i].hidden) continue; CGRect f=CGRectInset(_btn[i].frame,-10,-10); if(CGRectContainsPoint(f,p)) return i; }
+  return -1;
+}
 - (void)touchesBegan:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev {
-  if(ev.allTouches.count>=2 && !_stick){ _escape=true; }   /* deux doigts : pause / retour */
-  for(UITouch *t in touches){ CGPoint g=[self toGame:[t locationInView:self]];
-    if([self inPlay] && g.x<SCREEN_W*0.45f && !_stick){ _stick=t; _stick0=g; _stickP=g; continue; }
-    if(!_aim){ _aim=t; _tx=g.x; _ty=g.y; _moved=true; _tap=true; _mouseDown=true; } }
+  for(UITouch *t in touches){ CGPoint p=[t locationInView:self];
+    int b=[self buttonAt:p];
+    if(b>=0 && !_btnT[b]){ _btnT[b]=t; _btnPress[b]=true; continue; }
+    if([self inPlay]){
+      if(p.x<self.bounds.size.width*0.5f){ if(!_mv){ _mv=t; _mv0=p; _mvP=p; } }
+      else if(!_am){ _am=t; _am0=p; _amP=p; _amT=CACurrentMediaTime(); _amMax=0; }
+      continue;
+    }
+    if(!_aim){ CGPoint g=[self toGame:p]; _aim=t; _tx=g.x; _ty=g.y; _moved=true; _tap=true; _mouseDown=true; _scrollAcc=0; _lastGY=g.y; }
+  }
 }
 - (void)touchesMoved:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev {
-  for(UITouch *t in touches){ CGPoint g=[self toGame:[t locationInView:self]];
-    if(t==_stick) _stickP=g; else if(t==_aim){ _tx=g.x; _ty=g.y; _moved=true; } }
+  for(UITouch *t in touches){ CGPoint p=[t locationInView:self];
+    if(t==_mv) _mvP=p;
+    else if(t==_am){ _amP=p; _amMax=fmaxf(_amMax,hypotf(p.x-_am0.x,p.y-_am0.y)); }
+    else if(t==_aim){ CGPoint g=[self toGame:p]; _tx=g.x; _ty=g.y; _moved=true;
+      /* glisser verticalement fait defiler les listes (molette) */
+      _scrollAcc+=g.y-_lastGY; _lastGY=g.y;
+      while(_scrollAcc>16){ _wheel++; _scrollAcc-=16; } while(_scrollAcc<-16){ _wheel--; _scrollAcc+=16; } } }
 }
 - (void)touchesEnded:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev {
-  for(UITouch *t in touches){ if(t==_stick) _stick=nil; if(t==_aim){ _aim=nil; _mouseDown=false; } }
+  for(UITouch *t in touches){
+    for(int i=0;i<TB_N;i++) if(_btnT[i]==t) _btnT[i]=nil;
+    if(t==_mv) _mv=nil;
+    if(t==_am){ /* touche breve sans glisser : c'est un appui (boutons de vitesse, etc.) */
+      if(CACurrentMediaTime()-_amT<0.3 && _amMax<14){ CGPoint g=[self toGame:_am0]; _tx=g.x; _ty=g.y; _moved=true; _tap=true; }
+      _am=nil; }
+    if(t==_aim){ _aim=nil; _mouseDown=false; } }
 }
 - (void)touchesCancelled:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev { [self touchesEnded:touches withEvent:ev]; }
 
@@ -186,21 +251,59 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   _in.pad[PAD_UP]=g.dpad.up.pressed; _in.pad[PAD_DOWN]=g.dpad.down.pressed; _in.pad[PAD_LEFT]=g.dpad.left.pressed; _in.pad[PAD_RIGHT]=g.dpad.right.pressed;
   if(@available(iOS 14.0, *)){ if(!g_haptic && c.haptics){ g_haptic=[c.haptics createEngineWithLocality:GCHapticsLocalityDefault]; [g_haptic startAndReturnError:nil]; } }
 }
+- (void)updateOverlay {
+  [CATransaction begin]; [CATransaction setDisableActions:YES];
+  bool play=[self inPlay];
+  for(int i=0;i<TB_N;i++){
+    bool show = TB_PLAY[i] ? play : (g_state!=GS_CINE);
+    _btn[i].hidden=!show;
+    bool down=_btnT[i]!=nil;
+    _btn[i].backgroundColor=[UIColor colorWithWhite:down?0.3:0.08 alpha:down?0.75:0.55];
+  }
+  NSString *pl = play||(g_state==GS_RUN) ? @"❚❚\nPause" : @"◀\nÉchap";
+  if(![_btnL[TB_PAUSE].text isEqualToString:pl]) _btnL[TB_PAUSE].text=pl;
+  NSString *vs = S.game_speed==0 ? @"⏩\nx1" : (S.game_speed==1 ? @"⏩\nx1,5" : @"⏩\nx2");
+  if(![_btnL[TB_SPEED].text isEqualToString:vs]) _btnL[TB_SPEED].text=vs;
+  NSString *am = S.autoaim ? @"◎\nAuto" : @"◎\nDoigt";
+  if(![_btnL[TB_AIM].text isEqualToString:am]) _btnL[TB_AIM].text=am;
+  /* sticks : visibles sous le doigt */
+  UITouch *tt[2]={_mv,_am}; CGPoint o[2]={_mv0,_am0}, q[2]={_mvP,_amP};
+  for(int i=0;i<2;i++){
+    bool on = tt[i]!=nil && play;
+    _sb[i].hidden=!on; _sk[i].hidden=!on;
+    if(on){ float dx=q[i].x-o[i].x, dy=q[i].y-o[i].y, d=hypotf(dx,dy); if(d>STICK_R){ dx*=STICK_R/d; dy*=STICK_R/d; }
+      _sb[i].position=o[i]; _sk[i].position=CGPointMake(o[i].x+dx,o[i].y+dy); }
+  }
+  [CATransaction commit];
+}
 - (void)tick:(CADisplayLink*)l {
   double now=CACurrentMediaTime(); float dt= _last>0 ? (float)(now-_last) : 1.0f/60; _last=now; if(dt>0.1f) dt=0.1f;
   [self pollPad];
-  /* clavier virtuel : le stick tactile devient des fleches */
+  bool play=[self inPlay];
   for(int i=0;i<KEY_COUNT;i++) _in.key[i]=false;
-  if(_stick && [self inPlay]){ float dx=_stickP.x-_stick0.x, dy=_stickP.y-_stick0.y; const float dz=7;
-    _in.key[KEY_LEFT]=dx<-dz; _in.key[KEY_RIGHT]=dx>dz; _in.key[KEY_UP]=dy<-dz; _in.key[KEY_DOWN]=dy>dz; }
-  if(_escape){ _in.key[KEY_ESCAPE]=true; _escape=false; }
+  /* boutons tactiles : touches tenues tant que le doigt reste dessus */
+  for(int i=0;i<TB_N;i++){ if(_btnT[i]||_btnPress[i]) _in.key[TB_KEY[i]]=true; _btnPress[i]=false; }
+  /* sticks virtuels (analogiques, flottants : la base suit le pouce s'il depasse le bord) */
+  _in.touch=true; _in.tmx=_in.tmy=0; _in.taim=false; _in.tax=_in.tay=0;
+  if(_mv && play){
+    float dx=_mvP.x-_mv0.x, dy=_mvP.y-_mv0.y, d=hypotf(dx,dy);
+    if(d>STICK_R){ _mv0.x=_mvP.x-dx/d*STICK_R; _mv0.y=_mvP.y-dy/d*STICK_R; dx=_mvP.x-_mv0.x; dy=_mvP.y-_mv0.y; d=STICK_R; }
+    float m=d/STICK_R; const float dz=0.14f;
+    if(m>dz){ float k=(m-dz)/(1-dz)/m; _in.tmx=dx/STICK_R*k; _in.tmy=dy/STICK_R*k; }
+  }
+  if(_am && play){
+    float dx=_amP.x-_am0.x, dy=_amP.y-_am0.y, d=hypotf(dx,dy);
+    if(d>STICK_R*1.5f){ _am0.x=_amP.x-dx/d*STICK_R*1.5f; _am0.y=_amP.y-dy/d*STICK_R*1.5f; }
+    if(d>12){ _in.taim=true; _in.tax=dx/d; _in.tay=dy/d; }
+  }
   _in.mx=_tx; _in.my=_ty; _in.mouse_inside=true; _in.mouse_moved=_moved; _moved=false;
   _in.mb[MOUSE_LEFT]=_mouseDown || _tap; _tap=false;
   for(int i=0;i<KEY_COUNT;i++){ _in.key_pressed[i]=_in.key[i] && !_prevKey[i]; _prevKey[i]=_in.key[i]; }
   for(int i=0;i<PAD_COUNT;i++){ _in.pad_pressed[i]=_in.pad[i] && !_prevPad[i]; _prevPad[i]=_in.pad[i]; }
   for(int i=0;i<MOUSE_COUNT;i++){ _in.mb_pressed[i]=_in.mb[i] && !_prevMb[i]; _prevMb[i]=_in.mb[i]; }
-  _in.wheel=0;
+  _in.wheel=_wheel; _wheel=0;
   game_frame(&_in,dt);
+  [self updateOverlay];
   if([self drawGPU]){ _cpu.hidden=YES; return; }
   _cpu.hidden=NO;
   /* image 640x360 (0xAARRGGBB) -> calque */

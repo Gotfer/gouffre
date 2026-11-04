@@ -562,6 +562,7 @@ typedef struct {
   bool pad; int pad_type;
   int wheel; bool tab_l, tab_r;
   bool trig_l, trig_r;                 /* gachettes L2 / R2 (appui) */
+  bool touch;                          /* jeu au doigt (iPhone) */
 } Actions;
 extern Actions A;
 extern Input *g_in;

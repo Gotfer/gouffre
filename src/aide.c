@@ -123,6 +123,19 @@ static const HelpPage HP[]={
   "- Le son : Options > Musique, Effets sonores et Ambiances."},
 };
 #define HP_N ((int)(sizeof HP/sizeof HP[0]))
+/* sur iPhone, la page clavier devient la page tactile */
+static const HelpPage HP_TOUCH={"Écran tactile",
+  "Pouce gauche (moitié gauche) : se déplacer, le stick apparaît sous le doigt\n"
+  "Pouce droit (moitié droite) : viser, en glissant dans la direction voulue\n"
+  "Toucher brièvement : appuyer sur un bouton du jeu\n\n"
+  "Boutons sur les côtés de l'écran :\n"
+  "Pause / Échap : pause, ou retour dans les menus\n"
+  "Vitesse : vitesse du jeu (x1, x1,5, x2)\n"
+  "Visée : visée automatique ou au doigt\n\n"
+  "Menus : touchez pour choisir, glissez pour faire défiler les listes. "
+  "Cinématiques : maintenez le doigt pour passer.\n\n"
+  "Une manette (DualSense, Xbox...) reste le plus confortable : elle prend le relais dès qu'on la touche."};
+static const HelpPage *hp_page(int i){ return (A.touch && !strcmp(HP[i].title,"Clavier et souris")) ? &HP_TOUCH : &HP[i]; }
 
 void help_frame(float dt){
   if(help_ret==GS_RUN){ run_draw(); layer(LY_UI); gfx_darken(0,0,SCREEN_W,SCREEN_H,160); if(g_gpu){ GP.blur_all=0.85f; GP.desat=0.3f; } }
@@ -139,10 +152,10 @@ void help_frame(float dt){
     if(hov && (A.mouse_moved||A.click) && help_page!=i){ help_page=i; sfx(SFX_HOVER); }
     for(int j=0;j<lh;j++) gfx_hline(lx,lx+lw-1,y+j,col_lerp(i==help_page?HEX(0x5a3440):(hov?HEX(0x3a2630):HEX(0x2a1820)),HEX(0x160c12),(float)j/lh));
     orn_frame(lx,y,lw,lh,i==help_page?1:0);
-    text_draw(lx+8,y+(lh-TXT_H)/2+1,HP[i].title,i==help_page?HEX(0xfff4ec):HEX(0xc8b8c0),1,AL_LEFT,TX_SHADOW); }
+    text_draw(lx+8,y+(lh-TXT_H)/2+1,hp_page(i)->title,i==help_page?HEX(0xfff4ec):HEX(0xc8b8c0),1,AL_LEFT,TX_SHADOW); }
   /* texte */
   int tx=lx+lw+16, ty=py+42, tw=px+pw-18-tx;
-  const HelpPage *p=&HP[help_page];
+  const HelpPage *p=hp_page(help_page);
   text_draw(tx,ty,p->title,HEX(0xffd84a),2,AL_LEFT,TX_OUTLINE);
   gfx_hline(tx,tx+tw,ty+20,HEX(0x8a5a2e)); gfx_hline(tx,tx+tw,ty+21,HEX(0x2a160c));
   text_wrap(tx,ty+30,tw,p->text,HEX(0xe8dce4),1,TX_SHADOW,11);

@@ -726,7 +726,7 @@ void meta_frame(float dt){
   if(meta_scr==META_JOURNAL){ snprintf(b,sizeof b,A.pad?"%s : retour":"Échap : retour",btn(B_BACK)); text_draw(SCREEN_W/2,SCREEN_H-14,b,HEX(0x8a82a0),1,AL_CENTER,0); }
   else {
   if(A.pad) snprintf(b,sizeof b,meta_scr==META_ACH?"Haut / Bas : parcourir     %s : retour":"Croix : parcourir   L1 / R1 : onglets   %s : retour",btn(B_BACK));
-  else snprintf(b,sizeof b,meta_scr==META_ACH?"Flèches / molette : parcourir     Échap : retour":"Flèches : parcourir   Tab : onglet suivant   Échap : retour");
+  else snprintf(b,sizeof b,meta_scr==META_ACH?(A.touch?"Glisser : parcourir     Échap : retour":"Flèches / molette : parcourir     Échap : retour"):"Flèches : parcourir   Tab : onglet suivant   Échap : retour");
   text_draw(SCREEN_W/2,SCREEN_H-14,b,HEX(0x8a82a0),1,AL_CENTER,0); }
   if(A.back || A.rclick){ goto_state(meta_ret); sfx(SFX_CLICK); }
 }
