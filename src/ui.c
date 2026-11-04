@@ -63,7 +63,7 @@ void ui_end(void){
 }
 
 void ui_cursor(void){
-  if(A.pad || !g_in || !g_in->mouse_inside) return;
+  if(A.pad || A.touch || !g_in || !g_in->mouse_inside) return;   /* au doigt : pas de curseur */
   int x=(int)A.mx, y=(int)A.my;
   bool aiming = g_state==GS_RUN && (R.sub==RS_PLAY||R.sub==RS_INTRO||R.sub==RS_CLEAR) && !R.autoaim;
   if(aiming){

@@ -211,7 +211,9 @@ void text_vext(const char *s,int *top,int *bot){
   if(b<0){ t=2; b=8; }
   *top=t; *bot=b;
 }
+static const char *touch_words(const char *s);
 int text_w(const char *s,int scale){
+  if(s) s=touch_words(s);
   int best=0; const char *ls=s;
   for(const char *p=s;;p++){
     if(*p=='\n' || *p==0){ int w=seg_w(ls,p); if(w>best) best=w; if(!*p) break; ls=p+1; }
@@ -261,8 +263,21 @@ static void draw_seg_fx(int x,int y,const char *s,const char *e,uint32_t col,uin
   }
   draw_seg(x,y,s,e,col,cur,scale,0);
 }
+/* au doigt (iPhone), « Échap » designe le bouton Retour a l'ecran */
+static const char *touch_words(const char *s){
+  if(!A.touch || !strstr(s,"Échap")) return s;
+  static char b[512]; size_t k=0;
+  for(const char *p=s; *p && k<sizeof b-24; ){
+    if(!strncmp(p,"Échap : retour",15)){ k+=(size_t)sprintf(b+k,"Retour : revenir"); p+=15; }
+    else if(!strncmp(p,"Échap,",7)){ k+=(size_t)sprintf(b+k,"Retour,"); p+=7; }
+    else if(!strncmp(p,"Échap",6)){ k+=(size_t)sprintf(b+k,"Retour"); p+=6; }
+    else b[k++]=*p++;
+  }
+  b[k]=0; return b;
+}
 int text_draw(int x,int y,const char *s,uint32_t col,int scale,int align,int fx){
   if(!s) return 0;
+  s=touch_words(s);
   uint32_t cur=col; int best=0; int ly=y; const char *ls=s;
   for(const char *p=s;;p++){
     if(*p=='\n' || *p==0){

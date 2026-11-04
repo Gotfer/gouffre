@@ -102,6 +102,11 @@ static const bool TB_PLAY[TB_N]={false,true,true};
   /* boutons */
   UIView *_btn[TB_N]; UILabel *_btnL[TB_N]; UITouch *_btnT[TB_N]; bool _btnPress[TB_N];
   UIView *_ovl; CAShapeLayer *_sb[2], *_sk[2];
+  /* interface agrandie : zoom (pincer) et deplacement (glisser) dans les menus */
+  float _zoom, _menuZoom, _panX, _panY; int _scrKey;
+  UITouch *_t1, *_t2; CGPoint _t1s, _t1p; double _t1T; bool _panning, _pinched;
+  float _pinD0, _pinZ0; CGPoint _pinG0;
+  UIView *_scrH, *_scrV;                       /* barres de defilement */
   CGColorSpaceRef _cs;
   UIView *_cpu;                                /* image du rendu logiciel (si pas de GPU) */
   GLuint _fb, _rb; GLint _bw, _bh;             /* image GPU : tampon de l'ecran */
@@ -116,7 +121,7 @@ static const bool TB_PLAY[TB_N]={false,true,true};
     if(g_ctx){ [EAGLContext setCurrentContext:g_ctx]; glGenFramebuffers(1,&_fb); glGenRenderbuffers(1,&_rb); }
     _cpu=[[UIView alloc] initWithFrame:self.bounds]; _cpu.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     _cpu.userInteractionEnabled=NO; _cpu.backgroundColor=[UIColor blackColor];
-    _cpu.layer.magnificationFilter=kCAFilterNearest; _cpu.layer.contentsGravity=kCAGravityResizeAspect;
+    _cpu.layer.magnificationFilter=kCAFilterNearest; _cpu.layer.contentsGravity=kCAGravityResize; _cpu.autoresizingMask=UIViewAutoresizingNone;
     [self addSubview:_cpu];
     /* calque des commandes tactiles (dessin seulement : les doigts sont lus par cette vue) */
     _ovl=[[UIView alloc] initWithFrame:self.bounds]; _ovl.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
@@ -138,6 +143,8 @@ static const bool TB_PLAY[TB_N]={false,true,true};
     }
     _btnL[TB_SPEED].text=@"⏩\nVitesse"; _btnL[TB_AIM].text=@"◎\nVisée"; _btnL[TB_PAUSE].text=@"❚❚\nPause";
     _cs=CGColorSpaceCreateDeviceRGB();
+    { float z=[[NSUserDefaults standardUserDefaults] floatForKey:@"zoomMenus"]; _menuZoom = z>=1.0f ? z : 1.75f; _zoom=1; _scrKey=-1; }
+    for(int i=0;i<2;i++){ UIView *v=[[UIView alloc] initWithFrame:CGRectZero]; v.userInteractionEnabled=NO; v.backgroundColor=[UIColor colorWithWhite:1 alpha:0.45]; v.layer.cornerRadius=2; v.hidden=YES; [_ovl addSubview:v]; if(i==0) _scrH=v; else _scrV=v; }
     memset(&_in,0,sizeof _in); _tx=SCREEN_W/2; _ty=SCREEN_H/2;
     _link=[CADisplayLink displayLinkWithTarget:self selector:@selector(tick:)];
     if(@available(iOS 15.0, *)) _link.preferredFrameRateRange=CAFrameRateRangeMake(60,60,60);
@@ -146,12 +153,24 @@ static const bool TB_PLAY[TB_N]={false,true,true};
   return self;
 }
 /* rectangle de l'image (proportions conservees) */
-- (CGRect)gameRect {
+- (CGRect)fitRect {
   CGSize b=self.bounds.size; float k=fminf(b.width/SCREEN_W,b.height/SCREEN_H);
   float w=SCREEN_W*k, h=SCREEN_H*k; return CGRectMake((b.width-w)/2,(b.height-h)/2,w,h);
 }
+- (float)scale { CGSize b=self.bounds.size; return fminf(b.width/SCREEN_W,b.height/SCREEN_H)*_zoom; }   /* points par pixel du jeu */
+- (void)clampPan {
+  CGSize b=self.bounds.size; float s=[self scale]; float vw=b.width/s, vh=b.height/s;
+  _panX = vw>=SCREEN_W ? 0 : fminf(fmaxf(_panX,0),SCREEN_W-vw);
+  _panY = vh>=SCREEN_H ? 0 : fminf(fmaxf(_panY,0),SCREEN_H-vh);
+}
+/* rectangle de l'image a l'ecran (agrandie et deplacee dans les menus) */
+- (CGRect)gameRect {
+  CGSize b=self.bounds.size; float s=[self scale]; float w=SCREEN_W*s, h=SCREEN_H*s;
+  float x = w<=b.width ? (b.width-w)/2 : -_panX*s, y = h<=b.height ? (b.height-h)/2 : -_panY*s;
+  return CGRectMake(x,y,w,h);
+}
 - (void)layoutButtons {
-  CGRect g=[self gameRect]; CGSize B=self.bounds.size; float bar=g.origin.x;
+  CGRect g=[self fitRect]; CGSize B=self.bounds.size; float bar=g.origin.x;
   if(bar>=50){   /* iPhone : bandes noires sur les cotes */
     float s=fminf(bar-10,68), lx=bar/2, rx=B.width-bar/2, yt=g.origin.y+g.size.height*0.20f, yb=g.origin.y+g.size.height*0.80f;
     _btn[TB_PAUSE].center=CGPointMake(lx,yt); _btn[TB_SPEED].center=CGPointMake(lx,yb); _btn[TB_AIM].center=CGPointMake(rx,yt);
@@ -182,8 +201,8 @@ static const bool TB_PLAY[TB_N]={false,true,true};
   if(!g_ctx || !g_gpu_ok || !game_uses_gpu() || _bw<=0 || _bh<=0) return false;
   if([UIApplication sharedApplication].applicationState==UIApplicationStateBackground) return true;   /* pas de GL en arriere-plan */
   [EAGLContext setCurrentContext:g_ctx];
-  float k=fminf((float)_bw/SCREEN_W,(float)_bh/SCREEN_H);
-  int dw=(int)(SCREEN_W*k+0.5f), dh=(int)(SCREEN_H*k+0.5f), dx=(_bw-dw)/2, dy=(_bh-dh)/2;
+  CGRect g=[self gameRect]; float px=(float)_bw/self.bounds.size.width;
+  int dx=(int)lroundf(g.origin.x*px), dy=(int)lroundf(g.origin.y*px), dw=(int)lroundf(g.size.width*px), dh=(int)lroundf(g.size.height*px);
   gpu_render(_fb,_bw,_bh,dx,_bh-dy-dh,dw,dh);
   if(gpu_failed()){ g_gpu_ok=false; gpu_reset_state(); NSLog(@"Gouffre : erreur GPU, bascule en rendu logiciel"); return false; }
   glBindRenderbuffer(GL_RENDERBUFFER,_rb);
@@ -206,17 +225,31 @@ static const bool TB_PLAY[TB_N]={false,true,true};
       else if(!_am){ _am=t; _am0=p; _amP=p; _amT=CACurrentMediaTime(); _amMax=0; }
       continue;
     }
-    if(!_aim){ CGPoint g=[self toGame:p]; _aim=t; _tx=g.x; _ty=g.y; _moved=true; _tap=true; _mouseDown=true; _scrollAcc=0; _lastGY=g.y; }
+    /* menus : un doigt = toucher ou faire glisser l'interface, deux doigts = zoom */
+    if(!_t1){ _t1=t; _t1s=p; _t1p=p; _t1T=CACurrentMediaTime(); _panning=false; _pinched=false; _scrollAcc=0;
+      if(g_state==GS_CINE) _mouseDown=true; }   /* cinematique : maintenir pour passer */
+    else if(!_t2){ _t2=t; _pinched=true; _panning=true;
+      CGPoint a=[_t1 locationInView:self], c=p; _pinD0=fmaxf(20,hypotf(a.x-c.x,a.y-c.y)); _pinZ0=_zoom;
+      _pinG0=[self toGame:CGPointMake((a.x+c.x)/2,(a.y+c.y)/2)]; }
   }
 }
 - (void)touchesMoved:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev {
   for(UITouch *t in touches){ CGPoint p=[t locationInView:self];
     if(t==_mv) _mvP=p;
     else if(t==_am){ _amP=p; _amMax=fmaxf(_amMax,hypotf(p.x-_am0.x,p.y-_am0.y)); }
-    else if(t==_aim){ CGPoint g=[self toGame:p]; _tx=g.x; _ty=g.y; _moved=true;
-      /* glisser verticalement fait defiler les listes (molette) */
-      _scrollAcc+=g.y-_lastGY; _lastGY=g.y;
-      while(_scrollAcc>16){ _wheel++; _scrollAcc-=16; } while(_scrollAcc<-16){ _wheel--; _scrollAcc+=16; } } }
+    else if((t==_t1||t==_t2) && _t2){   /* pincer : zoom autour du point entre les doigts */
+      CGPoint a=[_t1 locationInView:self], c=[_t2 locationInView:self]; float d=hypotf(a.x-c.x,a.y-c.y);
+      _zoom=fminf(fmaxf(_pinZ0*d/_pinD0,1.0f),3.0f); _menuZoom=_zoom;
+      float s=[self scale]; CGPoint m=CGPointMake((a.x+c.x)/2,(a.y+c.y)/2);
+      _panX=_pinG0.x-m.x/s; _panY=_pinG0.y-m.y/s; [self clampPan]; }
+    else if(t==_t1){
+      if(!_panning && hypotf(p.x-_t1s.x,p.y-_t1s.y)>10){ _panning=true; }
+      if(_panning){ float s=[self scale]; float dx=(p.x-_t1p.x)/s, dy=(p.y-_t1p.y)/s;
+        float oy=_panY; _panX-=dx; _panY-=dy; [self clampPan];
+        /* au bord de l'ecran, le glissement vertical fait defiler les listes (molette) */
+        float rest=dy+(_panY-oy); _scrollAcc+=rest;
+        while(_scrollAcc>14){ _wheel++; _scrollAcc-=14; } while(_scrollAcc<-14){ _wheel--; _scrollAcc+=14; } }
+      _t1p=p; } }
 }
 - (void)touchesEnded:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev {
   for(UITouch *t in touches){
@@ -225,7 +258,12 @@ static const bool TB_PLAY[TB_N]={false,true,true};
     if(t==_am){ /* touche breve sans glisser : c'est un appui (boutons de vitesse, etc.) */
       if(CACurrentMediaTime()-_amT<0.3 && _amMax<14){ CGPoint g=[self toGame:_am0]; _tx=g.x; _ty=g.y; _moved=true; _tap=true; }
       _am=nil; }
-    if(t==_aim){ _aim=nil; _mouseDown=false; } }
+    if(t==_t1 || t==_t2){
+      if(t==_t1 && !_panning && !_pinched && CACurrentMediaTime()-_t1T<0.6){   /* simple toucher : clic */
+        CGPoint g=[self toGame:[t locationInView:self]]; _tx=g.x; _ty=g.y; _moved=true; _tap=true; }
+      if(_pinched) [[NSUserDefaults standardUserDefaults] setFloat:_menuZoom forKey:@"zoomMenus"];
+      if(t==_t1){ _t1=_t2; _t2=nil; if(_t1){ _t1s=_t1p=[_t1 locationInView:self]; } } else _t2=nil;
+      if(!_t1) _mouseDown=false; } }
 }
 - (void)touchesCancelled:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)ev { [self touchesEnded:touches withEvent:ev]; }
 
@@ -255,17 +293,22 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   [CATransaction begin]; [CATransaction setDisableActions:YES];
   bool play=[self inPlay];
   for(int i=0;i<TB_N;i++){
-    bool show = TB_PLAY[i] ? play : (g_state!=GS_CINE);
+    bool show = TB_PLAY[i] ? play : (g_state!=GS_CINE && g_state!=GS_TITLE);
     _btn[i].hidden=!show;
     bool down=_btnT[i]!=nil;
     _btn[i].backgroundColor=[UIColor colorWithWhite:down?0.3:0.08 alpha:down?0.75:0.55];
   }
-  NSString *pl = play||(g_state==GS_RUN) ? @"❚❚\nPause" : @"◀\nÉchap";
+  NSString *pl = play ? @"❚❚\nPause" : @"◀\nRetour";
   if(![_btnL[TB_PAUSE].text isEqualToString:pl]) _btnL[TB_PAUSE].text=pl;
   NSString *vs = S.game_speed==0 ? @"⏩\nx1" : (S.game_speed==1 ? @"⏩\nx1,5" : @"⏩\nx2");
   if(![_btnL[TB_SPEED].text isEqualToString:vs]) _btnL[TB_SPEED].text=vs;
   NSString *am = S.autoaim ? @"◎\nAuto" : @"◎\nDoigt";
   if(![_btnL[TB_AIM].text isEqualToString:am]) _btnL[TB_AIM].text=am;
+  /* barres de defilement quand l'interface est agrandie */
+  { CGSize B=self.bounds.size; float sc=[self scale]; float vw=B.width/sc, vh=B.height/sc;
+    _scrH.hidden = vw>=SCREEN_W-0.5f; _scrV.hidden = vh>=SCREEN_H-0.5f;
+    if(!_scrH.hidden){ float L=B.width-80; _scrH.frame=CGRectMake(40+_panX/SCREEN_W*L,B.height-7,vw/SCREEN_W*L,4); }
+    if(!_scrV.hidden){ float L=B.height-40; _scrV.frame=CGRectMake(B.width-7,20+_panY/SCREEN_H*L,4,vh/SCREEN_H*L); } }
   /* sticks : visibles sous le doigt */
   UITouch *tt[2]={_mv,_am}; CGPoint o[2]={_mv0,_am0}, q[2]={_mvP,_amP};
   for(int i=0;i<2;i++){
@@ -303,6 +346,13 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   for(int i=0;i<MOUSE_COUNT;i++){ _in.mb_pressed[i]=_in.mb[i] && !_prevMb[i]; _prevMb[i]=_in.mb[i]; }
   _in.wheel=_wheel; _wheel=0;
   game_frame(&_in,dt);
+  /* zoom : image entiere pendant l'action et les cinematiques, interface agrandie ailleurs */
+  { bool full=[self inPlay] || g_state==GS_CINE;
+    int key=g_state*100+(g_state==GS_RUN?R.sub:0);
+    if(!_t2) _zoom = full ? 1.0f : _menuZoom;
+    if(key!=_scrKey){ _scrKey=key; CGSize B=self.bounds.size; float sc=[self scale]; _panX=(SCREEN_W-B.width/sc)/2; _panY=(SCREEN_H-B.height/sc)/2; }
+    [self clampPan];
+    CGRect gr=[self gameRect]; if(!CGRectEqualToRect(_cpu.frame,gr)) _cpu.frame=gr; }
   [self updateOverlay];
   if([self drawGPU]){ _cpu.hidden=YES; return; }
   _cpu.hidden=NO;

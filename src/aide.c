@@ -129,10 +129,11 @@ static const HelpPage HP_TOUCH={"Écran tactile",
   "Pouce droit (moitié droite) : viser, en glissant dans la direction voulue\n"
   "Toucher brièvement : appuyer sur un bouton du jeu\n\n"
   "Boutons sur les côtés de l'écran :\n"
-  "Pause / Échap : pause, ou retour dans les menus\n"
+  "Pause / Retour : pause, ou retour dans les menus\n"
   "Vitesse : vitesse du jeu (x1, x1,5, x2)\n"
   "Visée : visée automatique ou au doigt\n\n"
-  "Menus : touchez pour choisir, glissez pour faire défiler les listes. "
+  "Menus : l'interface est agrandie. Touchez pour choisir, glissez pour vous déplacer "
+  "et faire défiler les listes, pincez pour régler le zoom. "
   "Cinématiques : maintenez le doigt pour passer.\n\n"
   "Une manette (DualSense, Xbox...) reste le plus confortable : elle prend le relais dès qu'on la touche."};
 static const HelpPage *hp_page(int i){ return (A.touch && !strcmp(HP[i].title,"Clavier et souris")) ? &HP_TOUCH : &HP[i]; }
