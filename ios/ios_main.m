@@ -235,8 +235,19 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   NSString *doc=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
   snprintf(g_save,sizeof g_save,"%s/sauvegarde.txt",doc.UTF8String);
   /* donnees facultatives (decors HD 4K + ambiances, ~5 Go) a copier dans Documents/donnees */
-  NSString *data=[doc stringByAppendingPathComponent:@"donnees"]; setenv("GOUFFRE_DONNEES",data.UTF8String,0);
-  [[NSFileManager defaultManager] createDirectoryAtPath:data withIntermediateDirectories:YES attributes:nil error:nil];
+  /* le dossier est cherche ou qu'il ait ete depose ("donnees", "donnees 2", Gouffre/donnees...) */
+  NSFileManager *fm=[NSFileManager defaultManager];
+  NSString *data=[doc stringByAppendingPathComponent:@"donnees"];
+  BOOL (^has)(NSString*)=^BOOL(NSString *d){ return [fm fileExistsAtPath:[d stringByAppendingPathComponent:@"niveau_01.gx"]] || [fm fileExistsAtPath:[d stringByAppendingPathComponent:@"campement_0.gx"]] || [fm fileExistsAtPath:[d stringByAppendingPathComponent:@"ambiances"]]; };
+  if(!has(data)){
+    if(has(doc)) data=doc;
+    else { NSDirectoryEnumerator *en=[fm enumeratorAtPath:doc]; NSString *rel;
+      while((rel=[en nextObject])){ if(en.level>3){ [en skipDescendants]; continue; }
+        NSString *d=[doc stringByAppendingPathComponent:rel]; BOOL dir=NO;
+        if([fm fileExistsAtPath:d isDirectory:&dir] && dir && has(d)){ data=d; break; } } }
+  }
+  setenv("GOUFFRE_DONNEES",data.UTF8String,0);
+  NSLog(@"Gouffre : donnees = %@",data);
   bool first=![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithUTF8String:g_save]];
   gl_start();
   game_init();
