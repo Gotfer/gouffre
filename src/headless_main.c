@@ -35,9 +35,11 @@ static bool egl_start(char *info,int n){
   unsigned (*mk)(EGLDisplay_,EGLSurface_,EGLSurface_,EGLContext_)=(unsigned(*)(EGLDisplay_,EGLSurface_,EGLSurface_,EGLContext_))dlsym(h,"eglMakeCurrent");
   if(!getdisp||!init||!bindapi||!choose||!cctx||!mk){ snprintf(info,n,"EGL incomplet"); return false; }
   EGLDisplay_ d=getdisp(0x31DD,NULL,NULL); int ma=0,mi=0; if(!d || !init(d,&ma,&mi)){ snprintf(info,n,"eglInitialize"); return false; }
-  bindapi(0x30A2);
-  int attr[]={0x3040,0x0008,0x3033,0,0x3038}; EGLConfig_ cfg=NULL; int nc=0; choose(d,attr,&cfg,1,&nc);
-  EGLContext_ c=cctx(d,nc?cfg:NULL,NULL,NULL); if(!c){ snprintf(info,n,"eglCreateContext"); return false; }
+  bool es = getenv("GOUFFRE_GLES")!=NULL;   /* test du chemin OpenGL ES 3 (iPhone) */
+  bindapi(es?0x30A0:0x30A2);
+  int attr[]={0x3040,es?0x0040:0x0008,0x3033,0,0x3038}; EGLConfig_ cfg=NULL; int nc=0; choose(d,attr,&cfg,1,&nc);
+  int cattr[]={0x3098,3,0x3038};
+  EGLContext_ c=cctx(d,nc?cfg:NULL,NULL,es?cattr:NULL); if(!c){ snprintf(info,n,"eglCreateContext"); return false; }
   if(!mk(d,NULL,NULL,c)){ snprintf(info,n,"eglMakeCurrent"); return false; }
   return true;
 }

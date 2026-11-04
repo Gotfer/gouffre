@@ -66,6 +66,10 @@ typedef unsigned char GLboolean, GLubyte; typedef char GLchar; typedef ptrdiff_t
 #define GL_LUMINANCE8_ALPHA8 0x8045
 #define GL_LINEAR_MIPMAP_LINEAR 0x2703
 #define GL_TEXTURE_MAX_LEVEL 0x813D
+#define GL_TEXTURE_SWIZZLE_R 0x8E42
+#define GL_TEXTURE_SWIZZLE_B 0x8E44
+#define GL_RED 0x1903
+#define GL_BLUE 0x1905
 
 static struct {
   const GLubyte *(GLCC *GetString)(GLenum);
@@ -657,8 +661,32 @@ static struct { GLint src, texel, p; } ud;
 static struct { GLint src, texel, w; } uu;
 static struct { GLint hdr, bloom, blur, ui, noise, game, p0, p1, p2, p3, flash, sh, hi, rect, on, icoA, icoM, icoI, icoOn; } un;
 
-static GLuint sh_compile(GLenum type,const char *src,const char *name){
-  GLuint s=gl.CreateShader(type); gl.ShaderSource(s,1,&src,NULL); gl.CompileShader(s);
+/* OpenGL ES 3 (iPhone) : les shaders GLSL 1.20 sont traduits a la volee en GLSL ES 3.00 */
+static bool G_es=false;
+static bool idch(char c){ return (c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')||c=='_'; }
+static char *es_translate(const char *src,bool frag){
+  size_t n=strlen(src); char *o=(char*)malloc(n*2+512); if(!o) return NULL; size_t k=0;
+  const char *hdr = frag ? "#version 300 es\nprecision highp float;\nprecision highp int;\nprecision highp sampler2D;\nout vec4 oFragColor;\n"
+                         : "#version 300 es\nprecision highp float;\nprecision highp int;\nprecision highp sampler2D;\n";
+  const char *p=src; if(!strncmp(p,"#version 120\n",13)) p+=13;
+  k=(size_t)sprintf(o,"%s",hdr);
+  static const char *const FROM[]={"attribute","varying","texture2D","gl_FragColor"};
+  while(*p){
+    if(idch(*p) && (p==src || !idch(p[-1]))){
+      const char *e=p; while(idch(*e)) e++; size_t l=(size_t)(e-p); const char *rep=NULL;
+      for(int i=0;i<4;i++) if(strlen(FROM[i])==l && !strncmp(p,FROM[i],l)){
+        rep = i==0 ? "in" : i==1 ? (frag?"in":"out") : i==2 ? "texture" : "oFragColor"; }
+      if(rep){ size_t rl=strlen(rep); memcpy(o+k,rep,rl); k+=rl; } else { memcpy(o+k,p,l); k+=l; }
+      p=e; continue;
+    }
+    o[k++]=*p++;
+  }
+  o[k]=0; return o;
+}
+static GLuint sh_compile(GLenum type,const char *src0,const char *name){
+  char *tr = G_es ? es_translate(src0,type==GL_FRAGMENT_SHADER) : NULL;
+  const char *src = tr ? tr : src0;
+  GLuint s=gl.CreateShader(type); gl.ShaderSource(s,1,&src,NULL); gl.CompileShader(s); free(tr);
   GLint ok=0; gl.GetShaderiv(s,GL_COMPILE_STATUS,&ok);
   if(!ok){ char b[2048]; b[0]=0; gl.GetShaderInfoLog(s,sizeof b,NULL,b); logf_("shader %s : %s\n",name,b); gl.DeleteShader(s); return 0; }
   return s;
@@ -679,7 +707,10 @@ static GLuint tex_make(int w,int h,GLint ifmt,GLint filter,GLint wrap,const void
   GLuint t=0; gl.GenTextures(1,&t); gl.BindTexture(GL_TEXTURE_2D,t);
   gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,filter); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,filter);
   gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,wrap); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,wrap);
-  gl.TexImage2D(GL_TEXTURE_2D,0,ifmt,w,h,0,GL_BGRA,GL_UNSIGNED_BYTE,data);
+  if(G_es){ /* pas de BGRA garanti en ES : on echange rouge et bleu a la lecture */
+    gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_SWIZZLE_R,GL_BLUE); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_SWIZZLE_B,GL_RED);
+    gl.TexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,w,h,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
+  } else gl.TexImage2D(GL_TEXTURE_2D,0,ifmt,w,h,0,GL_BGRA,GL_UNSIGNED_BYTE,data);
   return t;
 }
 static void rt_free(RT *r){ if(r->fb) gl.DeleteFramebuffers(1,&r->fb); if(r->tex) gl.DeleteTextures(1,&r->tex); r->fb=r->tex=0; r->w=r->h=0; }
@@ -688,7 +719,7 @@ static bool rt_try(RT *r,int w,int h,GLint fmt){
   gl.GenTextures(1,&r->tex); gl.BindTexture(GL_TEXTURE_2D,r->tex);
   gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-  gl.TexImage2D(GL_TEXTURE_2D,0,fmt,w,h,0,GL_RGBA,fmt==GL_RGBA8?GL_UNSIGNED_BYTE:GL_FLOAT,NULL);
+  gl.TexImage2D(GL_TEXTURE_2D,0,fmt,w,h,0,(G_es&&fmt==GL_R11F_G11F_B10F)?GL_RGB:GL_RGBA,fmt==GL_RGBA8?GL_UNSIGNED_BYTE:GL_FLOAT,NULL);
   if(gl.GetError()!=GL_NO_ERROR){ gl.DeleteTextures(1,&r->tex); r->tex=0; return false; }
   gl.GenFramebuffers(1,&r->fb); gl.BindFramebuffer(GL_FRAMEBUFFER,r->fb);
   gl.FramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,r->tex,0);
@@ -768,7 +799,9 @@ bool gpu_init(GpuGetProc gp,char *log,int logn){
   const char *ven=(const char*)gl.GetString(GL_VENDOR), *ren=(const char*)gl.GetString(GL_RENDERER), *ver=(const char*)gl.GetString(GL_VERSION), *sl=(const char*)gl.GetString(GL_SHADING_LANGUAGE_VERSION);
   snprintf(G_name,sizeof G_name,"%s | %s",ren?ren:"?",ver?ver:"?");
   logf_("Carte graphique : %s (%s)\n",ren,ven); logf_("OpenGL %s | GLSL %s\n",ver,sl);
-  if(!ver || !sl || ver[0]<'2'){ logf_("OpenGL trop ancien (2.1 requis) : rendu logiciel.\n%s%s","",""); return false; }
+  G_es = ver && !strncmp(ver,"OpenGL ES",9);
+  if(G_es && ver[10]<'3'){ logf_("OpenGL ES 3 requis : rendu logiciel.\n%s%s","",""); return false; }
+  if(!ver || !sl || (!G_es && ver[0]<'2')){ logf_("OpenGL trop ancien (2.1 requis) : rendu logiciel.\n%s%s","",""); return false; }
   while(gl.GetError()!=GL_NO_ERROR){}
   gl.GetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex); if(max_tex<2048) max_tex=2048;
 
@@ -807,7 +840,7 @@ bool gpu_init(GpuGetProc gp,char *log,int logn){
   { gl.GenTextures(1,&tx_icoM); gl.BindTexture(GL_TEXTURE_2D,tx_icoM);
     gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-    gl.TexImage2D(GL_TEXTURE_2D,0,GL_LUMINANCE8_ALPHA8,SCREEN_W,SCREEN_H,0,GL_LUMINANCE_ALPHA,GL_UNSIGNED_BYTE,NULL);
+    gl.TexImage2D(GL_TEXTURE_2D,0,G_es?GL_LUMINANCE_ALPHA:GL_LUMINANCE8_ALPHA8,SCREEN_W,SCREEN_H,0,GL_LUMINANCE_ALPHA,GL_UNSIGNED_BYTE,NULL);
     gl.GenTextures(1,&tx_icoI); gl.BindTexture(GL_TEXTURE_2D,tx_icoI);
     gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
@@ -817,7 +850,7 @@ bool gpu_init(GpuGetProc gp,char *log,int logn){
     gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE); gl.TexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     gl.PixelStorei(GL_UNPACK_ALIGNMENT,1);
-    gl.TexImage2D(GL_TEXTURE_2D,0,GL_LUMINANCE8,SCREEN_W,SCREEN_H,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,NULL);
+    gl.TexImage2D(GL_TEXTURE_2D,0,G_es?GL_LUMINANCE:GL_LUMINANCE8,SCREEN_W,SCREEN_H,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,NULL);
     gl.PixelStorei(GL_UNPACK_ALIGNMENT,4); tx_occ=t; }
   static const float FULL[6]={-1,-1, 3,-1, -1,3};
   gl.GenBuffers(1,&vbo_full); gl.BindBuffer(GL_ARRAY_BUFFER,vbo_full); gl.BufferData(GL_ARRAY_BUFFER,sizeof FULL,FULL,GL_STATIC_DRAW);
@@ -886,7 +919,7 @@ static void attribs(int n,const int *sizes,int stride){
   for(int i=0;i<n;i++){ gl.EnableVertexAttribArray((GLuint)i); gl.VertexAttribPointer((GLuint)i,sizes[i],GL_FLOAT,0,stride*4,(const void*)(intptr_t)(off*4)); off+=sizes[i]; }
 }
 static void attribs_off(int n){ for(int i=1;i<n;i++) gl.DisableVertexAttribArray((GLuint)i); }
-static void upload(GLuint t,const uint32_t *px){ gl.BindTexture(GL_TEXTURE_2D,t); gl.TexSubImage2D(GL_TEXTURE_2D,0,0,0,SCREEN_W,SCREEN_H,GL_BGRA,GL_UNSIGNED_BYTE,px); }
+static void upload(GLuint t,const uint32_t *px){ gl.BindTexture(GL_TEXTURE_2D,t); gl.TexSubImage2D(GL_TEXTURE_2D,0,0,0,SCREEN_W,SCREEN_H,G_es?GL_RGBA:GL_BGRA,GL_UNSIGNED_BYTE,px); }
 
 static int build_lights(void){
   float *v=vbuf; int n=0;

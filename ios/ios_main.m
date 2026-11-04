@@ -1,5 +1,6 @@
 /* GOUFFRE - couche iPhone / iPad (UIKit)
-   - image : le rendu logiciel du jeu (640x360) affiche en plein ecran, pixels nets
+   - image : rendu GPU OpenGL ES 3 (eclairage, HDR, bloom, decors HD 4K si le dossier
+     Documents/donnees est present) ; a defaut, rendu logiciel 640x360 en pixels nets
    - son : AudioUnit (RemoteIO), 44,1 kHz stereo
    - manette : GameController (DualSense, DualShock, Xbox, MFi), vibrations par CoreHaptics
    - tactile : au doigt, comme une souris dans les menus ; pendant une descente,
@@ -9,6 +10,10 @@
 #import <CoreHaptics/CoreHaptics.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#define GLES_SILENCE_DEPRECATION 1
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES3/gl.h>
+#include <dlfcn.h>
 #include <pthread.h>
 #include <mach/mach_time.h>
 #include "game.h"
@@ -64,6 +69,18 @@ static void audio_start(void){
   if(AudioUnitInitialize(g_au)==noErr) AudioOutputUnitStart(g_au);
 }
 
+/* ---------------- carte graphique ---------------- */
+static EAGLContext *g_ctx;
+extern bool game_uses_gpu(void);
+static void *ios_getproc(const char *n){ return dlsym(RTLD_DEFAULT,n); }
+static void gl_start(void){
+  g_ctx=[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+  if(!g_ctx || ![EAGLContext setCurrentContext:g_ctx]){ g_ctx=nil; NSLog(@"Gouffre : OpenGL ES 3 indisponible, rendu logiciel"); return; }
+  static char log[8192]; log[0]=0;
+  g_gpu_ok=gpu_init(ios_getproc,log,sizeof log);
+  NSLog(@"Gouffre : rendu %s\n%s",g_gpu_ok?"GPU":"logiciel",log);
+}
+
 /* ---------------- vue du jeu ---------------- */
 #define MAXT 8
 @interface GameView : UIView
@@ -76,11 +93,21 @@ static void audio_start(void){
   UITouch *_aim;                               /* visee / souris */
   bool _tap, _mouseDown, _escape; float _tx, _ty; bool _moved;
   CGColorSpaceRef _cs;
+  UIView *_cpu;                                /* image du rendu logiciel (si pas de GPU) */
+  GLuint _fb, _rb; GLint _bw, _bh;             /* image GPU : tampon de l'ecran */
 }
++ (Class)layerClass { return [CAEAGLLayer class]; }
 - (instancetype)initWithFrame:(CGRect)fr {
   if((self=[super initWithFrame:fr])){
     self.multipleTouchEnabled=YES; self.backgroundColor=[UIColor blackColor];
-    self.layer.magnificationFilter=kCAFilterNearest; self.layer.contentsGravity=kCAGravityResizeAspect;
+    CAEAGLLayer *el=(CAEAGLLayer*)self.layer; el.opaque=YES;
+    el.drawableProperties=@{kEAGLDrawablePropertyRetainedBacking:@NO, kEAGLDrawablePropertyColorFormat:kEAGLColorFormatRGBA8};
+    self.contentScaleFactor=[UIScreen mainScreen].nativeScale;
+    if(g_ctx){ [EAGLContext setCurrentContext:g_ctx]; glGenFramebuffers(1,&_fb); glGenRenderbuffers(1,&_rb); }
+    _cpu=[[UIView alloc] initWithFrame:self.bounds]; _cpu.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    _cpu.userInteractionEnabled=NO; _cpu.backgroundColor=[UIColor blackColor];
+    _cpu.layer.magnificationFilter=kCAFilterNearest; _cpu.layer.contentsGravity=kCAGravityResizeAspect;
+    [self addSubview:_cpu];
     _cs=CGColorSpaceCreateDeviceRGB();
     memset(&_in,0,sizeof _in); _tx=SCREEN_W/2; _ty=SCREEN_H/2;
     _link=[CADisplayLink displayLinkWithTarget:self selector:@selector(tick:)];
@@ -88,6 +115,32 @@ static void audio_start(void){
     [_link addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
   }
   return self;
+}
+- (void)layoutSubviews {
+  [super layoutSubviews];
+  if(!g_ctx || !_rb) return;
+  [EAGLContext setCurrentContext:g_ctx];
+  glBindRenderbuffer(GL_RENDERBUFFER,_rb);
+  [g_ctx renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)self.layer];
+  glBindFramebuffer(GL_FRAMEBUFFER,_fb);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_RENDERBUFFER,_rb);
+  glGetRenderbufferParameteriv(GL_RENDERBUFFER,GL_RENDERBUFFER_WIDTH,&_bw);
+  glGetRenderbufferParameteriv(GL_RENDERBUFFER,GL_RENDERBUFFER_HEIGHT,&_bh);
+  if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE){ _bw=_bh=0; }
+  glBindFramebuffer(GL_FRAMEBUFFER,0);
+}
+/* image GPU : rend dans le tampon de l'ecran ; faux si le rendu logiciel doit prendre le relais */
+- (bool)drawGPU {
+  if(!g_ctx || !g_gpu_ok || !game_uses_gpu() || _bw<=0 || _bh<=0) return false;
+  if([UIApplication sharedApplication].applicationState==UIApplicationStateBackground) return true;   /* pas de GL en arriere-plan */
+  [EAGLContext setCurrentContext:g_ctx];
+  float k=fminf((float)_bw/SCREEN_W,(float)_bh/SCREEN_H);
+  int dw=(int)(SCREEN_W*k+0.5f), dh=(int)(SCREEN_H*k+0.5f), dx=(_bw-dw)/2, dy=(_bh-dh)/2;
+  gpu_render(_fb,_bw,_bh,dx,_bh-dy-dh,dw,dh);
+  if(gpu_failed()){ g_gpu_ok=false; gpu_reset_state(); NSLog(@"Gouffre : erreur GPU, bascule en rendu logiciel"); return false; }
+  glBindRenderbuffer(GL_RENDERBUFFER,_rb);
+  [g_ctx presentRenderbuffer:GL_RENDERBUFFER];
+  return true;
 }
 /* rectangle de l'image (proportions conservees) */
 - (CGRect)gameRect {
@@ -148,6 +201,8 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   for(int i=0;i<MOUSE_COUNT;i++){ _in.mb_pressed[i]=_in.mb[i] && !_prevMb[i]; _prevMb[i]=_in.mb[i]; }
   _in.wheel=0;
   game_frame(&_in,dt);
+  if([self drawGPU]){ _cpu.hidden=YES; return; }
+  _cpu.hidden=NO;
   /* image 640x360 (0xAARRGGBB) -> calque */
   const uint32_t *fb=game_framebuffer();
   CGDataProviderRef dp=CGDataProviderCreateWithData(NULL,fb,(size_t)SCREEN_W*SCREEN_H*4,NULL);
@@ -156,7 +211,7 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   CGContextRef ctx=CGBitmapContextCreate(NULL,SCREEN_W,SCREEN_H,8,SCREEN_W*4,_cs,kCGBitmapByteOrder32Little|kCGImageAlphaNoneSkipFirst);
   CGContextDrawImage(ctx,CGRectMake(0,0,SCREEN_W,SCREEN_H),img);
   CGImageRef copy=CGBitmapContextCreateImage(ctx);
-  self.layer.contents=(__bridge id)copy;
+  _cpu.layer.contents=(__bridge id)copy;
   CGImageRelease(copy); CGContextRelease(ctx); CGImageRelease(img); CGDataProviderRelease(dp);
 }
 @end
@@ -179,9 +234,11 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
 - (BOOL)application:(UIApplication*)app didFinishLaunchingWithOptions:(NSDictionary*)opt {
   NSString *doc=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
   snprintf(g_save,sizeof g_save,"%s/sauvegarde.txt",doc.UTF8String);
-  /* donnees facultatives (ambiances) rangees dans Documents/donnees via l'app Fichiers */
+  /* donnees facultatives (decors HD 4K + ambiances, ~5 Go) a copier dans Documents/donnees */
   NSString *data=[doc stringByAppendingPathComponent:@"donnees"]; setenv("GOUFFRE_DONNEES",data.UTF8String,0);
+  [[NSFileManager defaultManager] createDirectoryAtPath:data withIntermediateDirectories:YES attributes:nil error:nil];
   bool first=![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithUTF8String:g_save]];
+  gl_start();
   game_init();
   if(first){ S.autoaim=true; save_write(); }   /* au doigt, la visee automatique aide beaucoup (reglable dans les options) */
   audio_start();
@@ -190,7 +247,7 @@ static float btnv(GCControllerButtonInput *b){ return b ? b.value : 0; }
   [self.window makeKeyAndVisible];
   return YES;
 }
-- (void)applicationWillResignActive:(UIApplication*)app { game_focus_lost(); save_write(); }
+- (void)applicationWillResignActive:(UIApplication*)app { game_focus_lost(); save_write(); if(g_ctx){ [EAGLContext setCurrentContext:g_ctx]; glFinish(); } }
 - (void)applicationDidEnterBackground:(UIApplication*)app { save_write(); }
 - (void)applicationWillTerminate:(UIApplication*)app { game_shutdown(); }
 @end
