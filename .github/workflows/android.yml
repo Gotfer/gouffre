@@ -1,0 +1,30 @@
+# Compile PadHome (accueil façon iPad) sur un serveur GitHub et publie PadHome.apk dans « Releases ».
+name: PadHome APK
+on:
+  push:
+    branches: [padhome]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+      - name: Compilation
+        run: gradle assembleRelease --no-daemon --stacktrace
+      - name: Publication (Releases)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk PadHome.apk
+          gh release delete padhome --yes --cleanup-tag || true
+          gh release create padhome PadHome.apk --target "${GITHUB_SHA}" --title "PadHome (accueil façon iPad)" \
+            --notes "Version ${GITHUB_RUN_NUMBER}. Ouvre ce lien sur la tablette, touche PadHome.apk pour le télécharger, puis installe-le."

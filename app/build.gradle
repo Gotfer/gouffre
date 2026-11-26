@@ -1,0 +1,32 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.enzo.padhome'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.enzo.padhome'
+        minSdk 26
+        targetSdk 35
+        // Numéro de version = numéro de compilation GitHub, pour pouvoir installer les mises à jour par-dessus.
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger())
+        versionName "1.${System.getenv('GITHUB_RUN_NUMBER') ?: '0'}"
+    }
+    // Clé de signature fixe : chaque nouvelle version s'installe par-dessus l'ancienne.
+    signingConfigs {
+        padhome {
+            storeFile file('padhome.jks')
+            storePassword 'padhome'
+            keyAlias 'padhome'
+            keyPassword 'padhome'
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.padhome }
+        debug { signingConfig signingConfigs.padhome }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lint { checkReleaseBuilds false; abortOnError false }
+}

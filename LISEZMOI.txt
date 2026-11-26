@@ -1,0 +1,13 @@
+PadHome — écran d'accueil façon iPadOS pour Galaxy Tab S10 Lite
+=================================================================
+Installation :
+1. Sur la tablette, ouvre https://github.com/Gotfer/gouffre/releases/tag/padhome
+2. Touche PadHome.apk, autorise l'installation depuis le navigateur, installe.
+3. Paramètres > Applications > Choisir les applis par défaut > Appli d'accueil > PadHome.
+
+Utilisation :
+- Glisser à gauche/droite : pages d'applis. Glisser vers le bas : recherche + bibliothèque d'apps.
+- Appui long sur une icône : ajouter/retirer du Dock, masquer, infos, désinstaller.
+- Appui long dans le vide : fond d'écran, apps masquées, appli d'accueil, paramètres.
+- Toucher l'horloge : alarmes. Toucher la batterie : détails batterie.
+Revenir à One UI : Paramètres > Applis par défaut > Appli d'accueil > One UI Home.
